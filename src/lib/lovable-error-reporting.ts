@@ -24,10 +24,10 @@ declare global {
   }
 }
 
-export function reportLovableError(error: unknown, context: Record<string, unknown> = {}) {
+export function reportLovableError(_error: unknown, _context: Record<string, unknown> = {}) {
   if (typeof window === "undefined") return;
   const safeError = new Error("An application error occurred.");
-  safeError.stack = undefined;
+  delete safeError.stack;
   window.__lovableEvents?.captureException?.(
     safeError,
     {

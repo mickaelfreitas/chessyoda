@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_authenticated/review/")({
   head: () => ({
     meta: [
-      { title: "Game review — Chess Yoda" },
+      { title: "Your games — Chess Yoda" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "Replay your games and see where they turned." },
-      { property: "og:title", content: "Game review — Chess Yoda" },
+      { property: "og:title", content: "Your games — Chess Yoda" },
       { property: "og:description", content: "Replay your games and see where they turned." },
     ],
   }),

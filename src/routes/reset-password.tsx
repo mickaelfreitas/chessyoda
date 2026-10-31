@@ -9,6 +9,8 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Set a new password — Chess Yoda" },
       { name: "description", content: "Choose a new password for your Chess Yoda account." },
       { property: "og:title", content: "Set a new password — Chess Yoda" },
