@@ -1,4 +1,5 @@
 # Requested updates
+- [ ] Match training and account screens to the landing style, with lighter chessboards; verify public screens and signed-in screens where access permits.
 - [x] Add captured material in play/review; take-back and possible-move toggles; rated eligibility with database enforcement and rule tests.
 - [x] Add secured Why to warnings; per-move autosave, pause and resume/delete unfinished games; preserve PGN history and queued writes.
 - [x] Add Glicko-2 uncertainty, specified Bayesian eight-week forecast after 20 rated games in a browser worker, and last-10 blunder average; mathematical regressions pass.

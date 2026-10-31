@@ -16,7 +16,7 @@
 - Puzzles are created when a game is saved (`saveGame` in `src/lib/data.ts`) from the player's mistake/blunder MoveRecords — single source for played and imported games.
 - Signed-in pages live under `src/routes/_authenticated/`, whose layout also renders the app nav.
 - Landing particle visuals use the supplied ParticleLineup component and an isolated Yoda canvas document; keep animation initialization in client-only effects to avoid SSR browser API access.
-- Landing styles and theme variables are scoped to `.landing` so presentation changes do not alter training pages; its demonstration board uses chess.js positions with local presentation-only coach state.
+- Shared application tokens and typography reuse the landing palette for training, account screens, and portaled controls; keep landing layouts scoped to `.landing` and board-square tokens independent for readable playing boards. The landing demonstration board uses chess.js positions with local presentation-only coach state.
 - The explanation allowance is configured once in the authenticated server-function module and consumed atomically through a service-only database RPC; clients have read-only access to their usage and the shared generated cache to prevent quota tampering and cache poisoning.
 - Explanation inputs and exact allowed origins are validated before privileged work; Anthropic secrets are read inside the authenticated handler only, and diagnostics use fixed messages rather than raw errors to prevent sensitive logging.
 - Game snapshots are serialized through a per-session save queue into the existing owner-scoped games table; replay PGN on resume to preserve repetition, and finalize the same row to avoid duplicate games/puzzles.
