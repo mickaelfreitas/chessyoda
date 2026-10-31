@@ -1,4 +1,5 @@
 # Requested updates
+- [x] Match the supplied landing HTML using IBM Plex Mono; desktop, mobile, particle visuals, and all coach demonstration controls verified.
 - [x] Fit both supplied particle visuals into the hero; checked desktop and mobile.
 - [x] Create the black-background Yoda particle favicon.
 - [x] Store DAILY_EXPLANATION_LIMIT = 300 in the existing server function; test passed.
