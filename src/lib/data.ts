@@ -15,6 +15,8 @@ export type NewGame = {
   moves: MoveRecord[];
   takebacks: number;
   createdAt?: string;
+  id?: string;
+  hintsUsed?: number;
 };
 
 async function requireUserId() {
@@ -30,7 +32,8 @@ export async function saveGame(g: NewGame): Promise<string> {
   const count = (l: string) => mine.filter((m) => m.label === l).length;
   const { data, error } = await supabase
     .from("games")
-    .insert({
+    .upsert({
+      ...(g.id ? { id: g.id } : {}),
       user_id: userId,
       source: g.source,
       external_id: g.externalId ?? null,
@@ -43,6 +46,9 @@ export async function saveGame(g: NewGame): Promise<string> {
       pgn: g.pgn,
       moves: g.moves as unknown as Json,
       takebacks: g.takebacks,
+      hints_used: g.hintsUsed ?? 0,
+      status: "completed",
+      current_fen: g.moves.at(-1)?.fenAfter ?? null,
       blunders: count("blunder"),
       mistakes: count("mistake"),
       inaccuracies: count("inaccuracy"),
@@ -61,11 +67,12 @@ export async function saveGame(g: NewGame): Promise<string> {
       best_uci: m.bestUci,
       best_san: m.bestLine[0] ?? null,
       best_line: m.bestLine.join(" "),
-      severity: m.label!,
+      severity: m.label ?? "mistake",
+      source_move_key: `${m.ply}:${m.uci}`,
       mistake_type: m.mistakeType ?? "missed_tactic",
     }));
   if (puzzles.length) {
-    const { error: pe } = await supabase.from("puzzles").insert(puzzles);
+    const { error: pe } = await supabase.from("puzzles").upsert(puzzles, { onConflict: "user_id,game_id,source_move_key", ignoreDuplicates: true });
     if (pe) throw pe;
   }
   return data.id;
@@ -73,5 +80,5 @@ export async function saveGame(g: NewGame): Promise<string> {
 
 export async function existingExternalIds(source: string): Promise<Set<string>> {
   const { data } = await supabase.from("games").select("external_id").eq("source", source).not("external_id", "is", null);
-  return new Set((data ?? []).map((r) => r.external_id!));
+  return new Set((data ?? []).flatMap((r) => r.external_id ? [r.external_id] : []));
 }

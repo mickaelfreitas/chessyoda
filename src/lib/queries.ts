@@ -17,7 +17,8 @@ export const gamesQuery = queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("games")
-      .select("id, source, opponent, opponent_elo, player_color, result, coach_mode, takebacks, blunders, mistakes, inaccuracies, created_at, time_control")
+      .select("id, source, opponent, opponent_elo, player_color, result, coach_mode, takebacks, hints_used, rated, blunders, mistakes, inaccuracies, created_at, time_control")
+      .eq("status", "completed")
       .order("created_at", { ascending: false })
       .limit(500);
     if (error) throw error;
@@ -34,6 +35,15 @@ export const gameQuery = (id: string) =>
       return { ...data, moves: data.moves as unknown as MoveRecord[] };
     },
   });
+
+export const unfinishedGamesQuery = queryOptions({
+  queryKey: ["unfinished-games"],
+  queryFn: async () => {
+    const { data, error } = await supabase.from("games").select("*").eq("status", "active").order("updated_at", { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+});
 
 export const puzzlesQuery = queryOptions({
   queryKey: ["puzzles"],
