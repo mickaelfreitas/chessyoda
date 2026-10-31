@@ -178,7 +178,7 @@ function Game({ settings, onNew, id, initial }: { settings: Settings; onNew: () 
   const [saveStatus, setSaveStatus] = useState("Saving…");
   const enqueueSave = useCallback((snapshot: GameSnapshot) => {
     saving.current = saving.current.catch(() => {}).then(async () => {
-      try { await persistSession(id, snapshot); if (mounted.current) setSaveStatus("Saved"); }
+      try { await persistSession(id, structuredClone(snapshot)); if (mounted.current) setSaveStatus("Saved"); }
       catch { if (mounted.current) setSaveStatus("Save failed — retrying"); }
     });
     return saving.current;
@@ -187,7 +187,7 @@ function Game({ settings, onNew, id, initial }: { settings: Settings; onNew: () 
   clockRef.current = clock;
 
   snapshotRef.current = { version: 1, settings, fen, pgn: chessRef.current.pgn(), records,
-    clock, clockHistory: clockHistory.current, takebacks, hintsUsed, pending: pending?.rec ?? null,
+    clock, clockHistory: [...clockHistory.current], takebacks, hintsUsed, pending: pending?.rec ?? null,
     lastLabel, threat, hint, showEval, evalNow };
   useEffect(() => {
     if (!overRef.current && snapshotRef.current) { setSaveStatus("Saving…"); void enqueueSave(snapshotRef.current); }
@@ -315,7 +315,7 @@ function Game({ settings, onNew, id, initial }: { settings: Settings; onNew: () 
       if (coach === "full" && rec.label) setLastLabel({ label: rec.label, san: rec.san, rec });
       addIncrement(player);
       if (checkOver()) return;
-      void botMove();
+      void botMove().catch(() => { if (mounted.current) { setBusy(false); toast.error("Opponent unavailable. Your game is saved."); } });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [coach, player, checkOver, botMove],
@@ -327,8 +327,23 @@ function Game({ settings, onNew, id, initial }: { settings: Settings; onNew: () 
     cache.current.clear();
     coachRef.current = new Engine();
     oppRef.current = new Engine();
-    void analyze(chessRef.current.fen());
-    if (!initial?.pending && chessRef.current.turn() === bot) void botMove().catch(() => { if (mounted.current) setBusy(false); });
+    const token = revision.current;
+    void (async () => {
+      // Recover a move saved while analysis was in-flight, before continuing.
+      const history = chessRef.current.history({ verbose: true });
+      const target = history.length - (initial?.pending ? 1 : 0);
+      if (recordsRef.current.length < target) setBusy(true);
+      for (let i = recordsRef.current.length; i < target; i++) {
+        const move = history[i];
+        if (!move) continue;
+        const [before, after] = await Promise.all([analyze(move.before), analyze(move.after)]);
+        if (!mounted.current || token !== revision.current) return;
+        pushRecord(buildRecord({ ply: i + 1, fenBefore: move.before, fenAfter: move.after, san: move.san, uci: move.from + move.to + (move.promotion ?? ""), color: move.color, byPlayer: move.color === player, before, after }));
+      }
+      if (checkOver()) return;
+      if (!initial?.pending && chessRef.current.turn() === bot) await botMove();
+      else setBusy(false);
+    })().catch(() => { if (mounted.current) setBusy(false); });
     return () => {
       mounted.current = false;
       revision.current += 1;
@@ -409,7 +424,8 @@ function Game({ settings, onNew, id, initial }: { settings: Settings; onNew: () 
       const previous = clockHistory.current.pop();
       if (previous) { clockRef.current = previous; setClock(previous); }
     } else {
-      const lastPlayer = recordsRef.current.findLastIndex((record) => record.byPlayer);
+      let lastPlayer = -1;
+      for (let i = recordsRef.current.length - 1; i >= 0; i--) if (recordsRef.current[i]?.byPlayer) { lastPlayer = i; break; }
       if (lastPlayer < 0) return;
       while (c.history().length > lastPlayer) {
         c.undo();
@@ -588,7 +604,7 @@ function Game({ settings, onNew, id, initial }: { settings: Settings; onNew: () 
               <Flag className="h-4 w-4" /> Resign
             </Button>
           )}
-          <Button size="sm" variant="ghost" onClick={onNew}>
+          <Button size="sm" variant="ghost" onClick={async () => { if (!overRef.current && snapshotRef.current) await enqueueSave({ ...snapshotRef.current, clock: { ...clockRef.current } }); onNew(); }}>
             <RotateCcw className="h-4 w-4" /> New game
           </Button>
           {coach !== "off" && <span className="self-center text-sm text-muted-foreground">Take-backs: {takebacks}</span>}
@@ -615,7 +631,7 @@ function Game({ settings, onNew, id, initial }: { settings: Settings; onNew: () 
       </div>
 
       <Dialog open={!!pending}>
-        <DialogContent onInteractOutside={(e) => e.preventDefault()} className="[&>button]:hidden">
+        <DialogContent onInteractOutside={(e) => e.preventDefault()} className="training [&>button]:hidden">
           <DialogHeader>
             <DialogTitle>This move loses material</DialogTitle>
             <DialogDescription>
@@ -631,7 +647,7 @@ function Game({ settings, onNew, id, initial }: { settings: Settings; onNew: () 
       </Dialog>
 
       <Dialog open={!!over}>
-        <DialogContent className="[&>button]:hidden">
+        <DialogContent className="training [&>button]:hidden">
           <DialogHeader>
             <DialogTitle>{over?.reason}</DialogTitle>
             <DialogDescription>Result {over?.result}</DialogDescription>
