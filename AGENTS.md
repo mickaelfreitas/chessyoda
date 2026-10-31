@@ -15,3 +15,5 @@
 - AI mistake explanations run in a `createServerFn` (`src/lib/explain.functions.ts`) behind `requireSupabaseAuth`, not a Supabase Edge Function — TanStack Start convention.
 - Puzzles are created when a game is saved (`saveGame` in `src/lib/data.ts`) from the player's mistake/blunder MoveRecords — single source for played and imported games.
 - Signed-in pages live under `src/routes/_authenticated/`, whose layout also renders the app nav.
+- Landing particle visuals use the supplied ParticleKing component and an isolated Yoda canvas document; keep animations client-only to avoid SSR browser API access.
+- The explanation allowance is configured in the existing authenticated server-function module; durable enforcement must not use worker-local state.
