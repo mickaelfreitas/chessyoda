@@ -16,8 +16,8 @@
   const settings = {
   "flowDirection": "right",
   "shapeIndex": 5,
-  "pointsNumber": 2000,
-  "pointSize": 1.15,
+  "pointsNumber": 12000,
+  "pointSize": 0.75,
   "scaleGlobal": 0.85,
   "movement": true,
   "movementSpeed": 0.35,
@@ -72,8 +72,9 @@
 };
 
   function resize() {
-    canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-    canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+    const resolution = Math.max(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round(canvas.offsetWidth * resolution);
+    canvas.height = Math.round(canvas.offsetHeight * resolution);
   }
 
   function generate(count, shape) {
@@ -286,7 +287,7 @@
   function render() {
     const w = canvas.width, h = canvas.height;
     const cx = w / 2, cy = h / 2;
-    const scale = Math.min(w, h) * 0.35 * settings.scaleGlobal;
+    const scale = Math.min(w / 3.2, h / 1.7) * 0.92;
     ctx.clearRect(0, 0, w, h);
     if (settings.movement) time += 0.016;
 
@@ -350,10 +351,10 @@
     }
     sorted.sort((a, b) => a.depth - b.depth);
     ctx.fillStyle = settings.particleColor;
-    const size = Math.max(1, settings.pointSize * window.devicePixelRatio);
+    const size = settings.pointSize * Math.max(2, window.devicePixelRatio || 1);
     const scan = ((time * 0.28) % 1) * 2.4 - 1.2;
     for (const p of sorted) {
-      const depth = 0.18 + 0.7 * Math.min(1, Math.max(0, (0.7 - p.depth) / 1.4));
+      const depth = 0.32 + 0.7 * Math.min(1, Math.max(0, (0.7 - p.depth) / 1.4));
       const band = Math.exp(-((p.y - scan) ** 2) / 0.003);
       ctx.globalAlpha = Math.min(1, depth + band * 0.9);
       const s = size * (1 + band * 0.8);
