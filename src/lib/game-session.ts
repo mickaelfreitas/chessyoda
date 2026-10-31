@@ -28,7 +28,8 @@ export function materialAt(pgnOrMoves: string | string[], ply?: number) {
   const captured: Record<Color, PieceSymbol[]> = { w: [], b: [] };
   for (const move of moves) if (move.captured) captured[move.color].push(move.captured);
   // Count actual material, not captures alone: promotions affect the advantage.
-  const position = new Chess();
+  const initialFen = game.getHeaders()["FEN"];
+  const position = initialFen ? new Chess(initialFen) : new Chess();
   for (const move of moves) position.move(move.san);
   const totals = { w: 0, b: 0 };
   for (const rank of position.board()) for (const piece of rank) if (piece) totals[piece.color] += MATERIAL_VALUES[piece.type];

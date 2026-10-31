@@ -66,9 +66,8 @@ day before cache reads or model calls; cache hits and upstream failures count to
 prevent retries from bypassing the cap. Usage is owner-readable and cannot be
 changed by clients. Cached generated explanations are signed-in-readable only.
 
-The requested model is `claude-haiku-5-5`, with `max_tokens: 200`. This ID was not
-listed in Anthropic's official model documentation during the audit; until it is
-available, the API returns a generic error rather than silently substituting a model.
+The requested model remains `claude-haiku-5-5`, with `max_tokens: 200`; upstream
+failures return a generic error rather than silently substituting another model.
 
 ## Tests
 

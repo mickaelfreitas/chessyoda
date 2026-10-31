@@ -54,7 +54,7 @@ function Review() {
   const cur = idx > 0 ? moves[idx - 1] : null;
   const fen = cur?.fenAfter ?? moves[0]?.fenBefore ?? START;
   const orientation = game.player_color === "black" ? "black" : "white";
-  const material = useMemo(() => materialAt(moves.map((move) => move.san), idx), [moves, idx]);
+  const material = useMemo(() => materialAt(game.pgn ?? moves.map((move) => move.san), idx), [game.pgn, moves, idx]);
 
   const chartData = useMemo(
     () => [{ ply: 0, v: 0.2 }, ...moves.map((m) => ({ ply: m.ply, v: capEval(m.mateAfter !== null ? (m.mateAfter > 0 ? 1000 : -1000) : m.evalAfter) / 100 }))],
