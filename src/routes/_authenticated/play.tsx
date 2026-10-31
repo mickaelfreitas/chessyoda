@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { CapturedMaterial } from "@/components/CapturedMaterial";
 import { CoachWhy } from "@/components/CoachWhy";
-import { TIME_CONTROLS, restoreChess, materialAt, isRatedUsage, legalTargets, type GameSettings, type GameSnapshot } from "@/lib/game-session";
+import { TIME_CONTROLS, DEFAULT_GAME_OPTIONS, restoreChess, materialAt, isRatedUsage, legalTargets, type GameSettings, type GameSnapshot } from "@/lib/game-session";
 import { persistSession, deleteSession } from "@/lib/session-data";
 
 export const Route = createFileRoute("/_authenticated/play")({
@@ -65,8 +65,8 @@ function Setup({ onStart, onResume }: { onStart: (s: Settings) => void; onResume
   const [tc, setTc] = useState<(typeof TIME_CONTROLS)[number]>(TIME_CONTROLS[3]);
   const [elo, setElo] = useState(1500);
   const [coach, setCoach] = useState<CoachMode>("full");
-  const [allowTakebacks, setAllowTakebacks] = useState(true);
-  const [showPossibleMoves, setShowPossibleMoves] = useState(true);
+  const [allowTakebacks, setAllowTakebacks] = useState(DEFAULT_GAME_OPTIONS.allowTakebacks);
+  const [showPossibleMoves, setShowPossibleMoves] = useState(DEFAULT_GAME_OPTIONS.showPossibleMoves);
   const { data: unfinished = [] } = useQuery(unfinishedGamesQuery);
   const queryClient = useQueryClient();
   const opt = (active: boolean) =>
@@ -177,8 +177,9 @@ function Game({ settings, onNew, id, initial }: { settings: Settings; onNew: () 
   const saving = useRef(Promise.resolve());
   const [saveStatus, setSaveStatus] = useState("Saving…");
   const enqueueSave = useCallback((snapshot: GameSnapshot) => {
+    const frozen = structuredClone(snapshot);
     saving.current = saving.current.catch(() => {}).then(async () => {
-      try { await persistSession(id, structuredClone(snapshot)); if (mounted.current) setSaveStatus("Saved"); }
+      try { await persistSession(id, frozen); if (mounted.current) setSaveStatus("Saved"); }
       catch { if (mounted.current) setSaveStatus("Save failed — retrying"); }
     });
     return saving.current;

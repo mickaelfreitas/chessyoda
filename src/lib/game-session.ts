@@ -9,6 +9,7 @@ export const TIME_CONTROLS = [
   { id: "none", label: "No clock", base: 0, inc: 0 },
 ] as const;
 export type GameSettings = { color: Color; tc: (typeof TIME_CONTROLS)[number]; elo: number; coach: "off" | "safety" | "full"; allowTakebacks: boolean; showPossibleMoves: boolean };
+export const DEFAULT_GAME_OPTIONS = { allowTakebacks: true, showPossibleMoves: true };
 export type GameSnapshot = {
   version: 1; settings: GameSettings; fen: string; pgn: string; records: MoveRecord[];
   clock: { w: number; b: number }; clockHistory: { w: number; b: number }[];

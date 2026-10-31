@@ -1,7 +1,8 @@
 # Requested updates
-- [ ] Add captured material in play/review; take-back and possible-move toggles; rated eligibility.
-- [ ] Add secured Why to warnings; per-move autosave, pause and resume/delete unfinished games.
-- [ ] Add Glicko-2 uncertainty, specified Bayesian eight-week forecast after 20 rated games, and last-10 blunder average.
+- [x] Add captured material in play/review; take-back and possible-move toggles; rated eligibility with database enforcement and rule tests.
+- [x] Add secured Why to warnings; per-move autosave, pause and resume/delete unfinished games; preserve PGN history and queued writes.
+- [x] Add Glicko-2 uncertainty, specified Bayesian eight-week forecast after 20 rated games in a browser worker, and last-10 blunder average; mathematical regressions pass.
+- [ ] Verify training upgrades signed-in end-to-end: requires user to sign in in preview; session minting cannot match their app account.
 - [x] Try a compact left-side title with Yoda above the supplied particle chess-piece lineup; desktop and mobile render without overlap or overflow, and coach controls still work.
 - [x] Update hero title and lowercase wordmark, remove footer attribution, separate Yoda above the title, and match particle styling and angular speed; checked desktop and mobile.
 - [x] Match the supplied landing HTML using IBM Plex Mono; desktop, mobile, particle visuals, and all coach demonstration controls verified.
@@ -10,4 +11,4 @@
 - [x] Store DAILY_EXPLANATION_LIMIT = 300 in the existing server function; test passed.
 - [x] Security pass: audited secrets/history; secured owner RLS and cache/usage grants, atomic daily quota, validated Anthropic explanations and exact origins, generic logs/errors; patched dependencies; added GPL/README/SECURITY. 21 tests and build pass; presentation unchanged.
 - [ ] Ignore all environment files and untrack .env: blocked because .gitignore is read-only and Git state changes are managed externally.
-- [ ] Verify authenticated Anthropic explanation flow: key saved, but requested claude-haiku-5-5 is absent from official model documentation; user's own app account could not be minted for browser verification. Requires model availability/choice and preview sign-in.
+- [ ] Verify authenticated Anthropic explanation flow: key saved and requested model kept unchanged; requires preview sign-in for a real explanation request.

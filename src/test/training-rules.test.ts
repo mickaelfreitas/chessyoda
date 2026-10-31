@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { Chess } from "chess.js";
 import { Glicko2 } from "glicko2";
-import { MATERIAL_VALUES, materialAt, isRatedUsage, legalTargets, restoreChess, type GameSnapshot } from "@/lib/game-session";
+import { MATERIAL_VALUES, DEFAULT_GAME_OPTIONS, materialAt, isRatedUsage, legalTargets, restoreChess, type GameSnapshot } from "@/lib/game-session";
 import { forecastRating, ratedResults, rollingBlunders, ratingHistory, FORECAST_UNLOCK_GAMES, FORECAST_WEEKS, INTERCEPT_STEP, SLOPE_STEP } from "@/lib/rating-forecast";
 describe("material and game rules", () => {
+  it("allows take-backs by default", () => expect(DEFAULT_GAME_OPTIONS.allowTakebacks).toBe(true));
+  it("shows possible moves by default", () => expect(DEFAULT_GAME_OPTIONS.showPossibleMoves).toBe(true));
   it("uses pawn1 knight3 bishop3 rook5 queen9", () => expect(MATERIAL_VALUES).toMatchObject({ p: 1, n: 3, b: 3, r: 5, q: 9 }));
   it("tracks captured pieces and the advantage at the selected ply", () => {
     expect(materialAt(["e4", "d5", "exd5"]).captured.w).toEqual(["p"]);
