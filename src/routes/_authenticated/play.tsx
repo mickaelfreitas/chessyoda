@@ -259,6 +259,7 @@ function Game({ settings, onNew }: { settings: Settings; onNew: () => void }) {
 
   // Engines lifecycle
   useEffect(() => {
+    cache.current.clear();
     coachRef.current = new Engine();
     oppRef.current = new Engine();
     void analyze(chessRef.current.fen());
@@ -266,6 +267,7 @@ function Game({ settings, onNew }: { settings: Settings; onNew: () => void }) {
     return () => {
       coachRef.current?.terminate();
       oppRef.current?.terminate();
+      cache.current.clear();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
