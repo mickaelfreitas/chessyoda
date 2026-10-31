@@ -1,4 +1,5 @@
 # Requested updates
+- [ ] Match the supplied landing HTML and use a technical monospace font; verify desktop, mobile, and coach controls.
 - [x] Fit both supplied particle visuals into the hero; checked desktop and mobile.
 - [x] Create the black-background Yoda particle favicon.
 - [x] Store DAILY_EXPLANATION_LIMIT = 300 in the existing server function; test passed.
