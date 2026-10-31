@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Particle Orb</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; overflow: hidden; }
+  canvas { display: block; width: 100vw; height: 100vh; background: transparent; }
+</style>
+</head>
+<body>
+<canvas id="orb"></canvas>
+<script>
+(function () {
+  const settings = {
+  "flowDirection": "right",
+  "shapeIndex": 5,
+  "pointsNumber": 7000,
+  "pointSize": 0.9,
+  "scaleGlobal": 0.85,
+  "movement": true,
+  "movementSpeed": 0.62,
+  "pointerInteractions": false,
+  "pointerParallax": false,
+  "backgroundColor": "transparent",
+  "particleColor": "#00FF6E"
+};
+  const canvas = document.getElementById("orb");
+  const ctx = canvas.getContext("2d");
+  const mouse = { x: 0, y: 0 };
+  let time = 0;
+  let particles = [];
+  const sampleYodaParticle = function sampleYodaParticle(p, time, direction) {
+    const wrap = (v)=>(v % 1 + 1) % 1;
+    const vertical = direction === "up" || direction === "down" || direction === "rotate-x";
+    const sign = direction === "left" || direction === "up" ? -1 : 1;
+    const u = wrap(p.u + (vertical ? 0 : time * 0.12 * sign));
+    const v = wrap(p.v + (vertical ? time * 0.12 * sign : 0));
+    let x, y, z;
+    if (p.part === 0) {
+        const height = v * 2 - 1;
+        const a = u * Math.PI * 2;
+        const ring = Math.sqrt(1 - height * height);
+        x = ring * Math.cos(a) * 0.57;
+        y = height * 0.7;
+        z = ring * Math.sin(a) * 0.38;
+        // Soften the silhouette: thin out rim particles (strongest beside the ears) so the
+        // contour fades instead of forming a hard ring. Stable per-particle threshold.
+        const facing = Math.abs(Math.sin(a)) * ring;
+        const nearEar = Math.max(0, 1 - Math.abs(y + 0.05) / 0.35);
+        const edge = Math.max(0, 1 - facing / 0.5) * (0.7 + 0.3 * nearEar);
+        const k = (Math.sin(p.u * 127.1 + p.v * 311.7) * 43758.5453 % 1 + 1) % 1;
+        if (edge > k) return null;
+    } else {
+        // Curved leaf-shaped pinna, with a cupped inner surface and raised rim.
+        const length = u;
+        const across = v * 2 - 1;
+        const width = 0.27 * Math.pow(1 - length, 0.65) * (1 + 0.45 * Math.sin(Math.PI * length));
+        x = p.side * (0.46 + length * 0.98);
+        y = -0.01 - 0.34 * length * length + across * width;
+        const cup = (1 - across * across) * Math.sin(Math.PI * (0.15 + length * 0.85));
+        z = -0.03 + 0.12 * cup + (p.side > 0 ? 1 : -1) * 0.015 * (1 - length);
+    }
+    if (((Math.abs(x) - 0.245) / 0.145) ** 2 + ((y + 0.12) / 0.09) ** 2 < 1) return null;
+    if ((x / 0.22) ** 2 + ((y - 0.36) / 0.026) ** 2 < 1) return null;
+    return {
+        ox: x,
+        oy: y,
+        oz: z
+    };
+};
+
+  function resize() {
+    canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+    canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+  }
+
+  function generate(count, shape) {
+    if (shape === 6) return (function generateKingParticles(n) {
+    // Silhouette of a king, as [height, radius] pairs from base to crown
+    const prof = [
+        [
+            -1,
+            0
+        ],
+        [
+            -1,
+            0.64
+        ],
+        [
+            -0.9,
+            0.64
+        ],
+        [
+            -0.86,
+            0.52
+        ],
+        [
+            -0.78,
+            0.5
+        ],
+        [
+            -0.72,
+            0.38
+        ],
+        [
+            -0.6,
+            0.3
+        ],
+        [
+            -0.3,
+            0.22
+        ],
+        [
+            0.1,
+            0.18
+        ],
+        [
+            0.22,
+            0.2
+        ],
+        [
+            0.26,
+            0.33
+        ],
+        [
+            0.32,
+            0.33
+        ],
+        [
+            0.36,
+            0.22
+        ],
+        [
+            0.44,
+            0.24
+        ],
+        [
+            0.6,
+            0.35
+        ],
+        [
+            0.66,
+            0.35
+        ],
+        [
+            0.68,
+            0
+        ]
+    ];
+    const segs = [];
+    let total = 0;
+    for(let i = 0; i < prof.length - 1; i++){
+        const a = prof[i], b = prof[i + 1];
+        const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+        total += len * ((a[1] + b[1]) / 2 + 0.02);
+        segs.push({
+            a,
+            b,
+            c: total
+        });
+    }
+    const pts = [];
+    const bodyN = Math.floor(n * 0.88);
+    for(let i = 0; i < bodyN; i++){
+        const r0 = Math.random() * total;
+        const s = segs.find((g)=>g.c >= r0) ?? segs[segs.length - 1];
+        const u = Math.random();
+        const y = s.a[0] + (s.b[0] - s.a[0]) * u;
+        const r = s.a[1] + (s.b[1] - s.a[1]) * u;
+        const th = Math.random() * Math.PI * 2;
+        pts.push({
+            x: r * Math.cos(th),
+            y,
+            z: r * Math.sin(th)
+        });
+    }
+    // The cross on top: a vertical and a horizontal bar
+    const boxes = [
+        [
+            -0.05,
+            0.05,
+            0.68,
+            1.0
+        ],
+        [
+            -0.17,
+            0.17,
+            0.8,
+            0.87
+        ]
+    ];
+    for(let i = bodyN; i < n; i++){
+        const b = boxes[Math.random() < 0.6 ? 0 : 1];
+        const face = Math.floor(Math.random() * 4);
+        let x = b[0] + Math.random() * (b[1] - b[0]);
+        let y = b[2] + Math.random() * (b[3] - b[2]);
+        let z = (Math.random() - 0.5) * 0.1;
+        if (face === 0) z = 0.05;
+        else if (face === 1) z = -0.05;
+        else if (face === 2) x = Math.random() < 0.5 ? b[0] : b[1];
+        else y = Math.random() < 0.5 ? b[2] : b[3];
+        pts.push({
+            x,
+            y,
+            z
+        });
+    }
+    return pts.map((p)=>({
+            ox: p.x,
+            oy: -p.y,
+            oz: p.z
+        }));
+})(count);
+    if (shape === 5) return (function generateYodaParticles(count) {
+    const particles = [];
+    while(particles.length < count){
+        const seed = {
+            part: Math.random() < 0.68 ? 0 : 1,
+            u: Math.random(),
+            v: Math.random(),
+            side: Math.random() < 0.5 ? -1 : 1
+        };
+        const point = sampleYodaParticle({
+            ...seed,
+            ox: 0,
+            oy: 0,
+            oz: 0
+        }, 0, "right");
+        if (point) particles.push({
+            ...point,
+            ...seed
+        });
+    }
+    return particles;
+})(count);
+    const out = [];
+    for (let i = 0; i < count; i++) {
+      let x, y, z;
+      const phi = Math.acos(2 * Math.random() - 1);
+      const theta = Math.random() * Math.PI * 2;
+      if (shape === 0) {
+        x = Math.sin(phi) * Math.cos(theta);
+        y = Math.sin(phi) * Math.sin(theta);
+        z = Math.cos(phi);
+      } else if (shape === 1) {
+        const R = 0.7, r = 0.3;
+        const u = Math.random() * Math.PI * 2;
+        const v = Math.random() * Math.PI * 2;
+        x = (R + r * Math.cos(v)) * Math.cos(u);
+        y = (R + r * Math.cos(v)) * Math.sin(u);
+        z = r * Math.sin(v);
+      } else if (shape === 2) {
+        const face = Math.floor(Math.random() * 6);
+        const a = Math.random() * 2 - 1, b = Math.random() * 2 - 1;
+        if (face === 0) { x = 1; y = a; z = b; }
+        else if (face === 1) { x = -1; y = a; z = b; }
+        else if (face === 2) { x = a; y = 1; z = b; }
+        else if (face === 3) { x = a; y = -1; z = b; }
+        else if (face === 4) { x = a; y = b; z = 1; }
+        else { x = a; y = b; z = -1; }
+      } else if (shape === 3) {
+        const t = (i / count) * Math.PI * 8;
+        const strand = i % 2 === 0 ? 1 : -1;
+        x = Math.cos(t) * 0.5 * strand;
+        y = (i / count) * 2 - 1;
+        z = Math.sin(t) * 0.5 * strand;
+        x += (Math.random() - 0.5) * 0.1;
+        z += (Math.random() - 0.5) * 0.1;
+      } else {
+        const arm = i % 3;
+        const dist = Math.random();
+        const angle = dist * Math.PI * 4 + (arm * Math.PI * 2) / 3;
+        x = Math.cos(angle) * dist;
+        z = Math.sin(angle) * dist;
+        y = (Math.random() - 0.5) * 0.1 * (1 - dist);
+      }
+      out.push({ ox: x, oy: y, oz: z });
+    }
+    return out;
+  }
+
+  function wrap(v) { return ((((v + 1) % 2) + 2) % 2) - 1; }
+
+  function render() {
+    const w = canvas.width, h = canvas.height;
+    const cx = w / 2, cy = h / 2;
+    const scale = Math.min(w, h) * 0.35 * settings.scaleGlobal;
+    ctx.clearRect(0, 0, w, h);
+    if (settings.movement) time += 0.01 * settings.movementSpeed;
+
+    let rotX = 0, rotY = 0, rotZ = 0, translateX = 0, translateY = 0;
+    switch (settings.flowDirection) {
+      case "rotate-y": rotY = time; break;
+      case "rotate-x": rotX = time; break;
+      case "rotate-z": rotZ = time; break;
+      case "up":    rotY = time * 0.15; translateY = -time * 0.4; break;
+      case "down":  rotY = time * 0.15; translateY =  time * 0.4; break;
+      case "left":  rotY = time * 0.15; translateX = -time * 0.4; break;
+      case "right": rotY = time * 0.15; translateX =  time * 0.4; break;
+      default: rotY = time;
+    }
+    const isYoda = settings.shapeIndex === 5;
+    if (isYoda) { rotX = 0; rotY = 0; rotZ = 0; translateX = 0; translateY = 0; }
+
+    const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+    const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+    const cosZ = Math.cos(rotZ), sinZ = Math.sin(rotZ);
+
+    const px = settings.pointerParallax && !isYoda ? mouse.x * 0.3 : 0;
+    const py = settings.pointerParallax && !isYoda ? mouse.y * 0.3 : 0;
+    const cosPP = Math.cos(py), sinPP = Math.sin(py);
+    const cosQQ = Math.cos(px), sinQQ = Math.sin(px);
+
+    const sorted = [];
+    for (const p of particles) {
+      let ox = p.ox, oy = p.oy, oz = p.oz;
+      if (isYoda) {
+        const point = sampleYodaParticle(p, time, settings.flowDirection);
+        if (!point) continue;
+        ox = point.ox; oy = point.oy; oz = point.oz;
+      }
+      if (settings.pointerInteractions) {
+        ox += mouse.x * 0.5 * 0.05;
+        oy += mouse.y * 0.5 * 0.05;
+      }
+      if (translateX !== 0) ox = wrap(ox + translateX);
+      if (translateY !== 0) oy = wrap(oy + translateY);
+
+      const x1 = ox * cosY - oz * sinY;
+      const z1 = ox * sinY + oz * cosY;
+      const y1 = oy;
+
+      const y2 = y1 * cosX - z1 * sinX;
+      const z2 = y1 * sinX + z1 * cosX;
+      const x2 = x1;
+
+      const x4 = x2 * cosZ - y2 * sinZ;
+      const y4 = x2 * sinZ + y2 * cosZ;
+      const z4 = z2;
+
+      const y5 = y4 * cosPP - z4 * sinPP;
+      const z5 = y4 * sinPP + z4 * cosPP;
+      const x6 = x4 * cosQQ - z5 * sinQQ;
+      const z6 = x4 * sinQQ + z5 * cosQQ;
+
+      const persp = 3 / (3 + z6);
+      sorted.push({ sx: cx + x6 * scale * persp, sy: cy + y5 * scale * persp, depth: z6 });
+    }
+    sorted.sort((a, b) => a.depth - b.depth);
+    ctx.fillStyle = settings.particleColor;
+    const size = Math.max(0.5, settings.pointSize * window.devicePixelRatio);
+    for (const p of sorted) {
+      ctx.beginPath();
+      ctx.arc(p.sx, p.sy, size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) requestAnimationFrame(render);
+  }
+
+  window.addEventListener("resize", resize);
+  canvas.addEventListener("mousemove", (e) => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+  });
+  resize();
+  particles = generate(settings.pointsNumber, settings.shapeIndex);
+  render();
+})();
+</script>
+</body>
+</html>
