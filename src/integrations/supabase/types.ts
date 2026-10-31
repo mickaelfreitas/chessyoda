@@ -14,7 +14,152 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      games: {
+        Row: {
+          blunders: number
+          coach_mode: string
+          created_at: string
+          external_id: string | null
+          id: string
+          inaccuracies: number
+          mistakes: number
+          moves: Json
+          opponent: string | null
+          opponent_elo: number | null
+          pgn: string | null
+          player_color: string
+          result: string | null
+          source: string
+          takebacks: number
+          time_control: string | null
+          user_id: string
+        }
+        Insert: {
+          blunders?: number
+          coach_mode?: string
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          inaccuracies?: number
+          mistakes?: number
+          moves?: Json
+          opponent?: string | null
+          opponent_elo?: number | null
+          pgn?: string | null
+          player_color?: string
+          result?: string | null
+          source?: string
+          takebacks?: number
+          time_control?: string | null
+          user_id: string
+        }
+        Update: {
+          blunders?: number
+          coach_mode?: string
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          inaccuracies?: number
+          mistakes?: number
+          moves?: Json
+          opponent?: string | null
+          opponent_elo?: number | null
+          pgn?: string | null
+          player_color?: string
+          result?: string | null
+          source?: string
+          takebacks?: number
+          time_control?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          rating: number
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id: string
+          rating?: number
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          rating?: number
+        }
+        Relationships: []
+      }
+      puzzles: {
+        Row: {
+          attempts: number
+          best_line: string | null
+          best_san: string | null
+          best_uci: string
+          created_at: string
+          failed_count: number
+          fen: string
+          game_id: string | null
+          id: string
+          last_attempt_at: string | null
+          mistake_type: string
+          played_san: string
+          severity: string
+          solved_count: number
+          status: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          best_line?: string | null
+          best_san?: string | null
+          best_uci: string
+          created_at?: string
+          failed_count?: number
+          fen: string
+          game_id?: string | null
+          id?: string
+          last_attempt_at?: string | null
+          mistake_type?: string
+          played_san: string
+          severity?: string
+          solved_count?: number
+          status?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          best_line?: string | null
+          best_san?: string | null
+          best_uci?: string
+          created_at?: string
+          failed_count?: number
+          fen?: string
+          game_id?: string | null
+          id?: string
+          last_attempt_at?: string | null
+          mistake_type?: string
+          played_san?: string
+          severity?: string
+          solved_count?: number
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "puzzles_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
