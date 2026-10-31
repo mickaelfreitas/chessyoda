@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      explanation_cache: {
+        Row: {
+          cache_key: string
+          created_at: string
+          explanation: string
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string
+          explanation: string
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string
+          explanation?: string
+        }
+        Relationships: []
+      }
+      explanation_usage: {
+        Row: {
+          usage_date: string
+          used: number
+          user_id: string
+        }
+        Insert: {
+          usage_date: string
+          used?: number
+          user_id: string
+        }
+        Update: {
+          usage_date?: string
+          used?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       games: {
         Row: {
           blunders: number
@@ -165,7 +201,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      consume_explanation_allowance: {
+        Args: { p_limit: number; p_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
