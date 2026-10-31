@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Board } from "@/components/Board";
+import ParticleKing from "@/components/ParticleKing";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,17 +24,17 @@ const features = [
 
 function Index() {
   return (
-    <main className="mx-auto grid min-h-screen max-w-5xl items-center gap-10 px-5 py-10 md:grid-cols-2">
-      <div>
+    <main className="mx-auto flex min-h-svh max-w-5xl flex-col justify-center gap-5 px-5 py-6">
+      <div className="mx-auto max-w-2xl text-center">
         <p className="text-sm font-semibold uppercase tracking-widest text-primary">Chess Yoda</p>
         <h1 className="mt-3 text-4xl font-bold leading-tight sm:text-5xl">
           Fewer blunders. <br />
           Calmer chess.
         </h1>
-        <p className="mt-4 max-w-md text-muted-foreground">
+        <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
           A patient training partner for players climbing from 1400 to 1800 — play the engine, review with an AI coach, drill your own mistakes.
         </p>
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Button asChild size="lg">
             <Link to="/play">Start training</Link>
           </Button>
@@ -42,7 +42,12 @@ function Index() {
             <Link to="/auth">Sign in</Link>
           </Button>
         </div>
-        <ul className="mt-8 space-y-3">
+      </div>
+      <div className="hero-orbs" aria-label="Chess king and Yoda particle orbs">
+        <div><ParticleKing /></div>
+        <iframe src="/particle-yoda.html" title="Yoda-shaped green particle orb" />
+      </div>
+        <ul className="grid gap-3 sm:grid-cols-3">
           {features.map(([t, d]) => (
             <li key={t} className="flex gap-3">
               <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-accent" />
@@ -52,10 +57,6 @@ function Index() {
             </li>
           ))}
         </ul>
-      </div>
-      <div className="mx-auto w-full max-w-md">
-        <Board position="r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4" allowDragging={false} />
-      </div>
     </main>
   );
 }

@@ -2,6 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+// Daily allowance; enforcement requires a confirmed durable quota counter.
+export const DAILY_EXPLANATION_LIMIT = 300;
+
 export const explainMistake = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
