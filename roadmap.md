@@ -1,4 +1,5 @@
 # Requested updates
+- [x] Refine hero to a centered face/content stack left and mockup-sized king right; verified shared center, desktop alignment, and mobile order at 320–1440px without overflow or runtime errors.
 - [x] Match training and account screens to the landing style, with lighter chessboards; account modes and mobile fit verified without runtime errors. Signed-in visual inspection remains blocked by unavailable account access, as below.
 - [x] Add captured material in play/review; take-back and possible-move toggles; rated eligibility with database enforcement and rule tests.
 - [x] Add secured Why to warnings; per-move autosave, pause and resume/delete unfinished games; preserve PGN history and queued writes.
