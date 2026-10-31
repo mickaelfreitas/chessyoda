@@ -97,7 +97,7 @@ function Setup({ onStart }: { onStart: (s: Settings) => void }) {
           <h2 className="text-sm font-semibold text-muted-foreground">Opponent strength</h2>
           <span className="font-display text-2xl font-bold">~{elo}</span>
         </div>
-        <Slider min={800} max={2200} step={50} value={[elo]} onValueChange={([v]) => setElo(v)} />
+        <Slider min={800} max={2200} step={50} value={[elo]} onValueChange={([v]) => setElo(v ?? 1500)} />
       </section>
       <section className="space-y-2">
         <h2 className="text-sm font-semibold text-muted-foreground">Coach mode</h2>
@@ -381,7 +381,7 @@ function Game({ settings, onNew }: { settings: Settings; onNew: () => void }) {
   const orientation = player === "w" ? "white" : "black";
   const myTurn = chessRef.current.turn() === player && !busy && !pending && !over;
   const pairs: [MoveRecord, MoveRecord | undefined][] = [];
-  for (let i = 0; i < records.length; i += 2) pairs.push([records[i], records[i + 1]]);
+  for (let i = 0; i < records.length; i += 2) pairs.push([records[i]!, records[i + 1]]);
 
   const ClockView = ({ side }: { side: "w" | "b" }) =>
     tc.base ? (

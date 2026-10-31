@@ -77,7 +77,7 @@ function ProgressPage() {
     e.preventDefault();
     if (!profile) return;
     const { error } = await supabase.from("profiles").update({ display_name: name, rating: Number(rating) || 1400 }).eq("id", profile.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Profile saved");
     queryClient.invalidateQueries({ queryKey: ["profile"] });
   }

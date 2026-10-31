@@ -63,7 +63,7 @@ function Review() {
     : {};
 
   async function askWhy(ply: number) {
-    const m = moves[ply - 1];
+    const m = moves[ply - 1]!;
     setWhy((w) => ({ ...w, [ply]: { loading: true } }));
     try {
       const res = await explain({ data: { fen: m.fenBefore, played: m.san, bestLine: m.bestLine.slice(0, 8), rating: profile?.rating ?? 1400 } });
@@ -113,7 +113,7 @@ function Review() {
             {(cur.label === "mistake" || cur.label === "blunder") && (
               <div className="mt-3">
                 {why[cur.ply]?.text ? (
-                  <p className="rounded-lg bg-secondary p-3 text-sm">{why[cur.ply].text}</p>
+                  <p className="rounded-lg bg-secondary p-3 text-sm">{why[cur.ply]!.text}</p>
                 ) : (
                   <Button size="sm" onClick={() => askWhy(cur.ply)} disabled={why[cur.ply]?.loading}>
                     {why[cur.ply]?.loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <HelpCircle className="h-4 w-4" />} Why?
