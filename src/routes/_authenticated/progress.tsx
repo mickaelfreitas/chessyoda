@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
 
@@ -9,6 +9,8 @@ import { MISTAKE_TYPE_TEXT, type MistakeType } from "@/lib/coach";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { RatingForecast } from "@/components/RatingForecast";
+import { ratedResults, rollingBlunders } from "@/lib/rating-forecast";
 
 export const Route = createFileRoute("/_authenticated/progress")({
   head: () => ({
@@ -64,7 +66,8 @@ function ProgressPage() {
   }, [profile]);
 
   const chrono = [...games].reverse();
-  const blunderSeries = chrono.map((g, i) => ({ n: i + 1, blunders: g.blunders, mistakes: g.mistakes }));
+  const blunderSeries = rollingBlunders(chrono).map((g, i) => ({ ...g, mistakes: chrono[i]?.mistakes ?? 0 }));
+  const results = useMemo(() => ratedResults(games), [games]);
   const takebackSeries = chrono.filter((g) => g.source === "play" && g.coach_mode !== "off").map((g, i) => ({ n: i + 1, takebacks: g.takebacks }));
   const solved = puzzles.reduce((s, p) => s + p.solved_count, 0);
   const failed = puzzles.reduce((s, p) => s + p.failed_count, 0);
@@ -89,6 +92,7 @@ function ProgressPage() {
   return (
     <div className="space-y-5">
       <h1 className="text-3xl font-bold">Progress</h1>
+      <RatingForecast results={results} />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="Games played" value={games.length} />
         <Stat label="Blunders / game" value={avgBlunders} />
@@ -104,6 +108,7 @@ function ProgressPage() {
             <Tooltip />
             <Line type="monotone" dataKey="blunders" stroke="var(--blunder)" strokeWidth={2} dot={false} />
             <Line type="monotone" dataKey="mistakes" stroke="var(--mistake)" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="average" name="Last 10 games average" stroke="var(--primary)" strokeWidth={2} dot={false} />
           </LineChart>
         </ChartCard>
         <ChartCard title="Take-backs per coached game">

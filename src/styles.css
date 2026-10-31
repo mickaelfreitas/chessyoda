@@ -276,3 +276,39 @@
   .landing-footer { padding: 28px 20px; }
 }
 @media (prefers-reduced-motion: no-preference) { html:has(.landing) { scroll-behavior: smooth; } }
+
+/* Training uses the existing landing palette without altering its layout. */
+.training {
+  --background: var(--landing-background);
+  --foreground: var(--landing-text);
+  --card: var(--landing-panel);
+  --card-foreground: var(--landing-text);
+  --popover: var(--landing-panel);
+  --popover-foreground: var(--landing-text);
+  --primary: var(--landing-accent);
+  --primary-foreground: var(--landing-background);
+  --secondary: var(--landing-square-dark);
+  --secondary-foreground: var(--landing-text);
+  --muted: var(--landing-panel);
+  --muted-foreground: var(--landing-secondary);
+  --accent: var(--landing-accent);
+  --accent-foreground: var(--landing-background);
+  --border: var(--landing-line);
+  --input: var(--landing-outline);
+  --ring: var(--landing-accent);
+  --board-light: var(--landing-square-dark);
+  --board-dark: var(--landing-square-light);
+  --arrow-best: var(--landing-accent);
+  --shadow-board: none;
+  --shadow-soft: none;
+  --legal-target: color-mix(in srgb, var(--landing-accent) 40%, transparent);
+  --forecast-band: color-mix(in srgb, var(--landing-accent) 18%, transparent);
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-technical);
+}
+.training h1, .training h2, .training h3, .training .font-display { font-family: var(--font-technical); }
+.training *, [data-slot="dialog-content"], [data-slot="dialog-content"] * { border-radius: 0; box-shadow: none; }
+.legal-target-dot, .legal-target-ring { position: absolute; pointer-events: none; z-index: 4; left: 50%; top: 50%; transform: translate(-50%, -50%); border-radius: 50% !important; }
+.legal-target-dot { width: 22%; height: 22%; background: var(--legal-target); }
+.legal-target-ring { width: 86%; height: 86%; border: 4px solid var(--legal-target); }
