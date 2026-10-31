@@ -14,6 +14,9 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedPlayRouteImport } from './routes/_authenticated/play'
+import { Route as AuthenticatedPuzzlesRouteImport } from './routes/_authenticated/puzzles'
+import { Route as AuthenticatedReviewIndexRouteImport } from './routes/_authenticated/review.index'
+import { Route as AuthenticatedReviewGameIdRouteImport } from './routes/_authenticated/review.$gameId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -39,18 +42,41 @@ const AuthenticatedPlayRoute = AuthenticatedPlayRouteImport.update({
   path: '/play',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPuzzlesRoute = AuthenticatedPuzzlesRouteImport.update({
+  id: '/puzzles',
+  path: '/puzzles',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReviewIndexRoute =
+  AuthenticatedReviewIndexRouteImport.update({
+    id: '/review/',
+    path: '/review/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedReviewGameIdRoute =
+  AuthenticatedReviewGameIdRouteImport.update({
+    id: '/review/$gameId',
+    path: '/review/$gameId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/play': typeof AuthenticatedPlayRoute
+  '/puzzles': typeof AuthenticatedPuzzlesRoute
+  '/review/$gameId': typeof AuthenticatedReviewGameIdRoute
+  '/review/': typeof AuthenticatedReviewIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/play': typeof AuthenticatedPlayRoute
+  '/puzzles': typeof AuthenticatedPuzzlesRoute
+  '/review/$gameId': typeof AuthenticatedReviewGameIdRoute
+  '/review': typeof AuthenticatedReviewIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -59,12 +85,29 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/play': typeof AuthenticatedPlayRoute
+  '/_authenticated/puzzles': typeof AuthenticatedPuzzlesRoute
+  '/_authenticated/review/$gameId': typeof AuthenticatedReviewGameIdRoute
+  '/_authenticated/review/': typeof AuthenticatedReviewIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/reset-password' | '/play'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/reset-password'
+    | '/play'
+    | '/puzzles'
+    | '/review/$gameId'
+    | '/review/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/reset-password' | '/play'
+  to:
+    | '/'
+    | '/auth'
+    | '/reset-password'
+    | '/play'
+    | '/puzzles'
+    | '/review/$gameId'
+    | '/review'
   id:
     | '__root__'
     | '/'
@@ -72,6 +115,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/_authenticated/play'
+    | '/_authenticated/puzzles'
+    | '/_authenticated/review/$gameId'
+    | '/_authenticated/review/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -118,15 +164,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPlayRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/puzzles': {
+      id: '/_authenticated/puzzles'
+      path: '/puzzles'
+      fullPath: '/puzzles'
+      preLoaderRoute: typeof AuthenticatedPuzzlesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/review/': {
+      id: '/_authenticated/review/'
+      path: '/review'
+      fullPath: '/review/'
+      preLoaderRoute: typeof AuthenticatedReviewIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/review/$gameId': {
+      id: '/_authenticated/review/$gameId'
+      path: '/review/$gameId'
+      fullPath: '/review/$gameId'
+      preLoaderRoute: typeof AuthenticatedReviewGameIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedPlayRoute: typeof AuthenticatedPlayRoute
+  AuthenticatedPuzzlesRoute: typeof AuthenticatedPuzzlesRoute
+  AuthenticatedReviewGameIdRoute: typeof AuthenticatedReviewGameIdRoute
+  AuthenticatedReviewIndexRoute: typeof AuthenticatedReviewIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPlayRoute: AuthenticatedPlayRoute,
+  AuthenticatedPuzzlesRoute: AuthenticatedPuzzlesRoute,
+  AuthenticatedReviewGameIdRoute: AuthenticatedReviewGameIdRoute,
+  AuthenticatedReviewIndexRoute: AuthenticatedReviewIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
