@@ -5,6 +5,6 @@
 - [x] Fit both supplied particle visuals into the hero; checked desktop and mobile.
 - [x] Create the black-background Yoda particle favicon.
 - [x] Store DAILY_EXPLANATION_LIMIT = 300 in the existing server function; test passed.
-- [ ] Security pass: secrets/history, owner RLS, durable quota/cache, validated Anthropic explanations, safe logs, dependencies, GPL/README/SECURITY; preserve presentation.
+- [x] Security pass: audited secrets/history; secured owner RLS and cache/usage grants, atomic daily quota, validated Anthropic explanations and exact origins, generic logs/errors; patched dependencies; added GPL/README/SECURITY. 21 tests and build pass; presentation unchanged.
 - [ ] Ignore all environment files and untrack .env: blocked because .gitignore is read-only and Git state changes are managed externally.
-- [ ] Verify authenticated Anthropic explanation flow: requires user's key and requested model availability.
+- [ ] Verify authenticated Anthropic explanation flow: key saved, but requested claude-haiku-5-5 is absent from official model documentation; user's own app account could not be minted for browser verification. Requires model availability/choice and preview sign-in.
