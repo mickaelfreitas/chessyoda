@@ -16,4 +16,5 @@
 - Puzzles are created when a game is saved (`saveGame` in `src/lib/data.ts`) from the player's mistake/blunder MoveRecords — single source for played and imported games.
 - Signed-in pages live under `src/routes/_authenticated/`, whose layout also renders the app nav.
 - Landing particle visuals use the supplied ParticleKing component and an isolated Yoda canvas document; keep animations client-only to avoid SSR browser API access.
+- Landing styles and theme variables are scoped to `.landing` so presentation changes do not alter training pages; its demonstration board uses chess.js positions with local presentation-only coach state.
 - The explanation allowance is configured in the existing authenticated server-function module; durable enforcement must not use worker-local state.
