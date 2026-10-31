@@ -55,7 +55,9 @@ export type Database = {
           blunders: number
           coach_mode: string
           created_at: string
+          current_fen: string | null
           external_id: string | null
+          hints_used: number
           id: string
           inaccuracies: number
           mistakes: number
@@ -64,17 +66,23 @@ export type Database = {
           opponent_elo: number | null
           pgn: string | null
           player_color: string
+          rated: boolean
           result: string | null
+          snapshot: Json | null
           source: string
+          status: string
           takebacks: number
           time_control: string | null
+          updated_at: string
           user_id: string
         }
         Insert: {
           blunders?: number
           coach_mode?: string
           created_at?: string
+          current_fen?: string | null
           external_id?: string | null
+          hints_used?: number
           id?: string
           inaccuracies?: number
           mistakes?: number
@@ -83,17 +91,23 @@ export type Database = {
           opponent_elo?: number | null
           pgn?: string | null
           player_color?: string
+          rated?: boolean
           result?: string | null
+          snapshot?: Json | null
           source?: string
+          status?: string
           takebacks?: number
           time_control?: string | null
+          updated_at?: string
           user_id: string
         }
         Update: {
           blunders?: number
           coach_mode?: string
           created_at?: string
+          current_fen?: string | null
           external_id?: string | null
+          hints_used?: number
           id?: string
           inaccuracies?: number
           mistakes?: number
@@ -102,10 +116,14 @@ export type Database = {
           opponent_elo?: number | null
           pgn?: string | null
           player_color?: string
+          rated?: boolean
           result?: string | null
+          snapshot?: Json | null
           source?: string
+          status?: string
           takebacks?: number
           time_control?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -147,6 +165,7 @@ export type Database = {
           played_san: string
           severity: string
           solved_count: number
+          source_move_key: string | null
           status: string
           user_id: string
         }
@@ -165,6 +184,7 @@ export type Database = {
           played_san: string
           severity?: string
           solved_count?: number
+          source_move_key?: string | null
           status?: string
           user_id: string
         }
@@ -183,6 +203,7 @@ export type Database = {
           played_san?: string
           severity?: string
           solved_count?: number
+          source_move_key?: string | null
           status?: string
           user_id?: string
         }

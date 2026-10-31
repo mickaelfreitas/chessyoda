@@ -31,7 +31,7 @@ function AppShell() {
     navigate({ to: "/auth", replace: true });
   }
   return (
-    <div className="min-h-screen pb-20 md:pb-0">
+    <div className="training min-h-screen pb-20 md:pb-0">
       <header className="sticky top-0 z-20 border-b bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
           <Link to="/play" className="font-display text-lg font-bold">

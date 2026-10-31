@@ -13,6 +13,8 @@ import { gameQuery, profileQuery, cssVar } from "@/lib/queries";
 import { capEval, formatEval } from "@/lib/coach";
 import { explainMistake } from "@/lib/explain.functions";
 import { cn } from "@/lib/utils";
+import { CapturedMaterial } from "@/components/CapturedMaterial";
+import { materialAt } from "@/lib/game-session";
 
 export const Route = createFileRoute("/_authenticated/review/$gameId")({
   head: () => ({
@@ -52,6 +54,7 @@ function Review() {
   const cur = idx > 0 ? moves[idx - 1] : null;
   const fen = cur?.fenAfter ?? moves[0]?.fenBefore ?? START;
   const orientation = game.player_color === "black" ? "black" : "white";
+  const material = useMemo(() => materialAt(game.pgn ?? moves.map((move) => move.san), idx), [game.pgn, moves, idx]);
 
   const chartData = useMemo(
     () => [{ ply: 0, v: 0.2 }, ...moves.map((m) => ({ ply: m.ply, v: capEval(m.mateAfter !== null ? (m.mateAfter > 0 ? 1000 : -1000) : m.evalAfter) / 100 }))],
@@ -84,14 +87,16 @@ function Review() {
       <div className="space-y-3">
         <div className="flex items-baseline justify-between">
           <h1 className="text-2xl font-bold">vs {game.opponent}</h1>
-          <span className="font-mono text-sm">{game.result}</span>
+          <span className="font-mono text-sm">{game.result}{!game.rated && " · Unrated"}</span>
         </div>
+        <div className="flex flex-wrap items-center gap-2 text-sm"><span>{game.opponent}</span><CapturedMaterial material={material} side={orientation === "white" ? "b" : "w"} /></div>
         <div className="flex gap-2">
           <EvalBar cp={cur?.evalAfter ?? 20} mate={cur?.mateAfter ?? null} orientation={orientation} />
           <div className="min-w-0 flex-1">
             <Board position={fen} boardOrientation={orientation} allowDragging={false} arrows={arrows} squareStyles={squareStyles} />
           </div>
         </div>
+        <div className="flex flex-wrap items-center gap-2 text-sm"><span>{profile?.display_name ?? "You"}</span><CapturedMaterial material={material} side={orientation === "white" ? "w" : "b"} /></div>
         <div className="flex items-center justify-between">
           <div className="flex gap-1">
             <Button size="icon" variant="outline" onClick={() => setIdx(0)} aria-label="Start"><ChevronsLeft className="h-4 w-4" /></Button>
