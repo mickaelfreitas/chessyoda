@@ -48,6 +48,7 @@ function ImportPage() {
       const seen = await existingExternalIds(site);
       const todo = games.filter((g) => !seen.has(g.id));
       let puzzles = 0;
+      let done = 0;
       for (let i = 0; i < todo.length; i++) {
         if (cancel.current) break;
         const g = todo[i]!;
@@ -69,9 +70,10 @@ function ImportPage() {
           takebacks: 0,
           createdAt: g.createdAt,
         });
+        done++;
       }
       setProgress(100);
-      setSummary({ games: todo.length, puzzles, skipped: games.length - todo.length });
+      setSummary({ games: done, puzzles, skipped: games.length - todo.length });
       queryClient.invalidateQueries();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Import failed");
