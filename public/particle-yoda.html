@@ -17,7 +17,7 @@
   "flowDirection": "right",
   "shapeIndex": 5,
   "pointsNumber": 12000,
-  "pointSize": 0.55,
+  "pointSize": 0.75,
   "scaleGlobal": 0.85,
   "movement": true,
   "movementSpeed": 0.35,
@@ -354,7 +354,7 @@
     const size = settings.pointSize * Math.max(2, window.devicePixelRatio || 1);
     const scan = ((time * 0.28) % 1) * 2.4 - 1.2;
     for (const p of sorted) {
-      const depth = 0.18 + 0.7 * Math.min(1, Math.max(0, (0.7 - p.depth) / 1.4));
+      const depth = 0.32 + 0.7 * Math.min(1, Math.max(0, (0.7 - p.depth) / 1.4));
       const band = Math.exp(-((p.y - scan) ** 2) / 0.003);
       ctx.globalAlpha = Math.min(1, depth + band * 0.9);
       const s = size * (1 + band * 0.8);
