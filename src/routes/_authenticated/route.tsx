@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/
 import { useQueryClient } from "@tanstack/react-query";
 import { Swords, BookOpen, Puzzle, Download, LineChart, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -34,8 +35,8 @@ function AppShell() {
     <div className="training min-h-screen pb-20 md:pb-0">
       <header className="sticky top-0 z-20 border-b bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-          <Link to="/play" className="font-display text-lg font-bold">
-            Chess Yoda
+          <Link to="/play" className="text-sm font-semibold">
+            chessyoda.com
           </Link>
           <nav className="hidden gap-1 md:flex">
             {nav.map((n) => (
@@ -43,15 +44,15 @@ function AppShell() {
                 key={n.to}
                 to={n.to}
                 className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
-                activeProps={{ className: "bg-secondary text-secondary-foreground" }}
+                activeProps={{ className: "bg-secondary text-primary" }}
               >
                 {n.label}
               </Link>
             ))}
           </nav>
-          <button onClick={signOut} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+          <Button variant="ghost" onClick={signOut} className="gap-1.5 text-sm text-muted-foreground hover:text-foreground">
             <LogOut className="h-4 w-4" /> Sign out
-          </button>
+          </Button>
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-4 py-5">

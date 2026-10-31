@@ -3,7 +3,7 @@ import { Chessboard, type ChessboardOptions } from "react-chessboard";
 /** Themed wrapper around react-chessboard. */
 export function Board(props: ChessboardOptions) {
   return (
-    <div className="aspect-square w-full overflow-hidden rounded-lg shadow-board">
+    <div className="aspect-square w-full overflow-hidden border border-border">
       <Chessboard
         options={{
           lightSquareStyle: { backgroundColor: "var(--board-light)" },

@@ -5,9 +5,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-display: "Fraunces", Georgia, serif;
-  --font-sans: "Manrope", system-ui, sans-serif;
+  --font-display: "IBM Plex Mono", monospace;
+  --font-sans: "IBM Plex Mono", monospace;
   --font-technical: "IBM Plex Mono", monospace;
+  --font-mono: "IBM Plex Mono", monospace;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -74,27 +75,27 @@
   --landing-square-dark: #16211C;
   --landing-piece-white: #F2F5F3;
   --landing-piece-black: #5B6A62;
-  --radius: 0.75rem;
-  --background: oklch(0.975 0.012 95);
-  --foreground: oklch(0.24 0.03 150);
-  --card: oklch(0.993 0.006 95);
-  --card-foreground: oklch(0.24 0.03 150);
-  --popover: oklch(0.993 0.006 95);
-  --popover-foreground: oklch(0.24 0.03 150);
-  --primary: oklch(0.42 0.08 150);
-  --primary-foreground: oklch(0.98 0.01 95);
-  --secondary: oklch(0.93 0.025 120);
-  --secondary-foreground: oklch(0.3 0.05 150);
-  --muted: oklch(0.94 0.015 100);
-  --muted-foreground: oklch(0.5 0.025 140);
-  --accent: oklch(0.82 0.13 85);
-  --accent-foreground: oklch(0.25 0.04 70);
+  --radius: 0rem;
+  --background: var(--landing-background);
+  --foreground: var(--landing-text);
+  --card: var(--landing-panel);
+  --card-foreground: var(--landing-text);
+  --popover: var(--landing-panel);
+  --popover-foreground: var(--landing-text);
+  --primary: var(--landing-accent);
+  --primary-foreground: var(--landing-background);
+  --secondary: var(--landing-square-dark);
+  --secondary-foreground: var(--landing-text);
+  --muted: var(--landing-panel);
+  --muted-foreground: var(--landing-secondary);
+  --accent: var(--landing-square-dark);
+  --accent-foreground: var(--landing-text);
   --destructive: oklch(0.56 0.2 28);
   --destructive-foreground: oklch(0.98 0.01 95);
-  --border: oklch(0.89 0.02 110);
-  --input: oklch(0.89 0.02 110);
-  --ring: oklch(0.42 0.08 150);
-  --chart-1: oklch(0.42 0.08 150);
+  --border: var(--landing-line);
+  --input: var(--landing-outline);
+  --ring: var(--landing-accent);
+  --chart-1: var(--landing-accent);
   --chart-2: oklch(0.72 0.14 80);
   --chart-3: oklch(0.56 0.2 28);
   --chart-4: oklch(0.6 0.1 220);
@@ -106,8 +107,8 @@
   --mistake: oklch(0.67 0.17 50);
   --blunder: oklch(0.56 0.21 28);
 
-  --board-light: oklch(0.93 0.035 95);
-  --board-dark: oklch(0.6 0.075 145);
+  --board-light: oklch(0.85 0.016 150);
+  --board-dark: oklch(0.58 0.045 155);
   --eval-white: oklch(0.97 0.01 95);
   --eval-black: oklch(0.28 0.03 150);
   --highlight-threat: oklch(0.6 0.22 28 / 0.55);
@@ -115,17 +116,17 @@
   --highlight-last: oklch(0.85 0.12 95 / 0.55);
   --arrow-best: oklch(0.55 0.13 160);
 
-  --shadow-board: 0 18px 40px -18px oklch(0.24 0.03 150 / 0.45);
-  --shadow-soft: 0 6px 20px -10px oklch(0.24 0.03 150 / 0.25);
+  --shadow-board: none;
+  --shadow-soft: none;
 
-  --sidebar: oklch(0.975 0.012 95);
-  --sidebar-foreground: oklch(0.24 0.03 150);
-  --sidebar-primary: oklch(0.42 0.08 150);
-  --sidebar-primary-foreground: oklch(0.98 0.01 95);
-  --sidebar-accent: oklch(0.93 0.025 120);
-  --sidebar-accent-foreground: oklch(0.3 0.05 150);
-  --sidebar-border: oklch(0.89 0.02 110);
-  --sidebar-ring: oklch(0.42 0.08 150);
+  --sidebar: var(--landing-background);
+  --sidebar-foreground: var(--landing-text);
+  --sidebar-primary: var(--landing-accent);
+  --sidebar-primary-foreground: var(--landing-background);
+  --sidebar-accent: var(--landing-panel);
+  --sidebar-accent-foreground: var(--landing-text);
+  --sidebar-border: var(--landing-line);
+  --sidebar-ring: var(--landing-accent);
 }
 
 @layer base {
@@ -296,8 +297,6 @@
   --border: var(--landing-line);
   --input: var(--landing-outline);
   --ring: var(--landing-accent);
-  --board-light: var(--landing-square-dark);
-  --board-dark: var(--landing-square-light);
   --arrow-best: var(--landing-accent);
   --shadow-board: none;
   --shadow-soft: none;
@@ -308,6 +307,11 @@
   font-family: var(--font-technical);
 }
 .training h1, .training h2, .training h3, .training .font-display { font-family: var(--font-technical); }
+.training h1, .training h2, .account-screen h1 { text-transform: uppercase; }
+.account-screen { font-family: var(--font-technical); }
+.account-screen *, [data-slot="popover-content"], [data-slot="tooltip-content"], [data-slot="select-content"], [data-sonner-toast] { border-radius: 0; box-shadow: none; }
+.recharts-default-tooltip { background: var(--popover) !important; border-color: var(--border) !important; color: var(--popover-foreground) !important; }
+.recharts-tooltip-label { color: var(--popover-foreground) !important; }
 .training *, [data-slot="dialog-content"], [data-slot="dialog-content"] * { border-radius: 0; box-shadow: none; }
 .legal-target-dot, .legal-target-ring { position: absolute; pointer-events: none; z-index: 4; left: 50%; top: 50%; transform: translate(-50%, -50%); border-radius: 50% !important; }
 .legal-target-dot { width: 22%; height: 22%; background: var(--legal-target); }
