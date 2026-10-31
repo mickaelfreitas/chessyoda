@@ -22,8 +22,8 @@ describe("coach rules", () => {
     expect(hangingPieces("4k3/8/3p4/4N3/8/8/8/4K3 w - - 0 1", "w")).toContain("e5");
   });
 
-  it("maps opponent strength 800–2200 to engine settings", () => {
+  it("maps opponent strength 800–2400 to engine settings", () => {
     expect(eloToEngineSettings(800).skill).toBe(0);
-    expect(eloToEngineSettings(2200).skill).toBe(20);
+    expect(eloToEngineSettings(2400).skill).toBe(20);
   });
 });

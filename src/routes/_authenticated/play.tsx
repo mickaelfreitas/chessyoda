@@ -97,7 +97,7 @@ function Setup({ onStart }: { onStart: (s: Settings) => void }) {
           <h2 className="text-sm font-semibold text-muted-foreground">Opponent strength</h2>
           <span className="font-display text-2xl font-bold">~{elo}</span>
         </div>
-        <Slider min={800} max={2200} step={50} value={[elo]} onValueChange={([v]) => setElo(v ?? 1500)} />
+        <Slider min={800} max={2400} step={50} value={[elo]} onValueChange={([v]) => setElo(v ?? 1500)} />
       </section>
       <section className="space-y-2">
         <h2 className="text-sm font-semibold text-muted-foreground">Coach mode</h2>
