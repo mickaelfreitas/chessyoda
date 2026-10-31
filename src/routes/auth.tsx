@@ -60,10 +60,10 @@ function AuthPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-5">
-      <div className="w-full max-w-sm rounded-2xl border bg-card p-6 shadow-soft">
-        <Link to="/" className="text-sm font-semibold uppercase tracking-widest text-primary">
-          Chess Yoda
+    <main className="account-screen flex min-h-screen items-center justify-center px-5 py-10">
+      <div className="w-full max-w-sm border-t border-border py-8">
+        <Link to="/" className="text-sm font-semibold text-foreground">
+          chessyoda.com
         </Link>
         <h1 className="mt-2 text-2xl font-bold">{mode === "in" ? "Welcome back" : mode === "up" ? "Create account" : "Reset password"}</h1>
         {sent ? (
@@ -99,19 +99,19 @@ function AuthPage() {
         )}
         <div className="mt-4 flex flex-col gap-1 text-sm">
           {mode !== "in" && (
-            <button className="text-left text-primary" onClick={() => { setMode("in"); setSent(null); }}>
+            <Button variant="link" className="h-auto justify-start whitespace-normal p-0 text-left" onClick={() => { setMode("in"); setSent(null); }}>
               Have an account? Sign in
-            </button>
+            </Button>
           )}
           {mode !== "up" && (
-            <button className="text-left text-primary" onClick={() => { setMode("up"); setSent(null); }}>
+            <Button variant="link" className="h-auto justify-start whitespace-normal p-0 text-left" onClick={() => { setMode("up"); setSent(null); }}>
               New here? Create an account
-            </button>
+            </Button>
           )}
           {mode === "in" && (
-            <button className="text-left text-muted-foreground" onClick={() => { setMode("forgot"); setSent(null); }}>
+            <Button variant="link" className="h-auto justify-start whitespace-normal p-0 text-left text-muted-foreground" onClick={() => { setMode("forgot"); setSent(null); }}>
               Forgot password?
-            </button>
+            </Button>
           )}
         </div>
       </div>
