@@ -8,6 +8,20 @@
       "when": 1793407830274,
       "tag": "0000_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793464069485,
+      "tag": "0001_secure_explanation_quota_cache",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793464223042,
+      "tag": "0002_least_privilege_explanation_grants",
+      "breakpoints": true
     }
   ]
 }

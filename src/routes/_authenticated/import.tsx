@@ -16,6 +16,8 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/import")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Import games — Chess Yoda" },
       { name: "description", content: "Pull your recent Lichess or Chess.com games and turn mistakes into puzzles." },
       { property: "og:title", content: "Import games — Chess Yoda" },

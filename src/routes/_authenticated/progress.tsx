@@ -13,6 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/progress")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Progress — Chess Yoda" },
       { name: "description", content: "Track blunders, take-backs, puzzle accuracy and your most common mistakes." },
       { property: "og:title", content: "Progress — Chess Yoda" },

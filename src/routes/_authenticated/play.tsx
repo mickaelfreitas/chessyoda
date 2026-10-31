@@ -22,6 +22,8 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/play")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Play — Chess Yoda" },
       { name: "description", content: "Play the engine with an optional safety net and live coaching." },
       { property: "og:title", content: "Play — Chess Yoda" },

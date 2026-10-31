@@ -15,6 +15,8 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/puzzles")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "My puzzles — Chess Yoda" },
       { name: "description", content: "Find the better move in positions from your own games." },
       { property: "og:title", content: "My puzzles — Chess Yoda" },

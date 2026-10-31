@@ -17,6 +17,8 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/review/$gameId")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Game review — Chess Yoda" },
       { name: "description", content: "Step through the game with engine evaluations and coach explanations." },
       { property: "og:title", content: "Game review — Chess Yoda" },
