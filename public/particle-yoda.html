@@ -16,7 +16,7 @@
   const settings = {
   "flowDirection": "right",
   "shapeIndex": 5,
-  "pointsNumber": 7000,
+  "pointsNumber": 2000,
   "pointSize": 1.15,
   "scaleGlobal": 0.85,
   "movement": true,
@@ -317,7 +317,7 @@
     for (const p of particles) {
       let ox = p.ox, oy = p.oy, oz = p.oz;
       if (isYoda) {
-        const point = sampleYodaParticle(p, time * settings.movementSpeed, settings.flowDirection);
+        const point = sampleYodaParticle(p, time * settings.movementSpeed / (0.12 * Math.PI * 2), settings.flowDirection);
         if (!point) continue;
         ox = point.ox; oy = point.oy; oz = point.oz;
       }
