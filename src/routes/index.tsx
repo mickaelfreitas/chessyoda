@@ -1,15 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Crown, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ParticleKing from "@/components/ParticleKing";
 import { LandingBoard } from "@/components/LandingBoard";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
-    { title: "Chess Yoda — see the threat before it sees you" },
+    { title: "Chess Yoda — improve your chess force" },
     { name: "description", content: "Train with an engine from 800 to 2400 Elo, catch blunders, and turn your mistakes into tomorrow’s puzzles." },
-    { property: "og:title", content: "Chess Yoda — see the threat before it sees you" },
+    { property: "og:title", content: "Chess Yoda — improve your chess force" },
     { property: "og:description", content: "Play at your level, review your games, and train your own mistakes with Chess Yoda." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
@@ -33,7 +33,7 @@ function Index() {
   const [revealed, setRevealed] = useState(false);
   return <div className="landing">
     <header className="landing-header landing-wrap">
-      <Link to="/" className="landing-wordmark"><Crown aria-hidden="true" />Chess Yoda</Link>
+      <Link to="/" className="landing-wordmark">chessyoda.com</Link>
       <nav className="landing-nav" aria-label="Main"><a href="#coach">How it works</a><a href="#puzzles">Puzzles</a></nav>
       <div className="landing-nav-actions"><Button asChild variant="outline" className="landing-button landing-signin"><Link to="/auth">Sign in</Link></Button><Button asChild className="landing-button"><Link to="/play">Start a game</Link></Button></div>
     </header>
@@ -41,11 +41,12 @@ function Index() {
       <section className="landing-hero">
         <div className="landing-wrap landing-hero-inner">
           <div className="landing-hero-text">
-            <h1>See the threat before it sees you</h1>
+            <iframe className="landing-yoda" src="/particle-yoda.html" title="Yoda-shaped green particle orb" />
+            <h1>Improve your<br />chess <span className="landing-force">force.</span></h1>
             <p className="landing-lead">A training partner that plays at your level, from 800 to 2400, catches blunders the moment you make them, and turns every mistake into tomorrow’s puzzle.</p>
             <div className="landing-button-row"><Button asChild className="landing-button"><Link to="/play">Start a game</Link></Button><Button asChild variant="outline" className="landing-button"><a href="#coach">How the coach works</a></Button></div>
           </div>
-          <div className="landing-particles" aria-label="Chess king and Yoda particle visuals"><div className="landing-king"><ParticleKing /></div><iframe className="landing-yoda" src="/particle-yoda.html" title="Yoda-shaped green particle orb" /></div>
+          <div className="landing-particles" aria-label="Chess king particle visual"><div className="landing-king"><ParticleKing /></div></div>
         </div>
       </section>
       <section className="landing-section" id="play">
@@ -65,6 +66,6 @@ function Index() {
       <section className="landing-section" id="puzzles"><div className="landing-wrap landing-columns"><div className="landing-stack"><h2>Lose on Tuesday.<br />Train the fix on Wednesday.</h2><p className="landing-body">Every mistake from your games, played here or imported from Lichess and Chess.com, comes back as a puzzle. Miss it, and it returns until you don’t.</p><Button asChild variant="outline" className="landing-button landing-self-start"><Link to="/import">Import my games<ArrowUpRight aria-hidden="true" /></Link></Button></div><div className="landing-queue"><div className="landing-queue-head"><span>Today’s queue</span><span>Sample</span></div>{samples.map(([title, source, status]) => <div className="landing-queue-row" key={title}><div><span className="landing-queue-title">{title}</span><span className="landing-queue-source">{source}</span></div><span className={`landing-badge ${status === "Solved" ? "is-solved" : status === "Missed twice" ? "is-missed" : ""}`}>{status}</span></div>)}</div></div></section>
       <section className="landing-section landing-cta"><div className="landing-wrap landing-stack"><h2>The board is set</h2><p className="landing-lead">Free to play. Your games, puzzles and progress are saved to your account.</p><Button asChild className="landing-button landing-self-start"><Link to="/play">Start a game</Link></Button></div></section>
     </main>
-    <footer className="landing-footer"><div className="landing-wrap"><span>© 2026 Chess Yoda</span><a href="https://stockfishchess.org/" target="_blank" rel="noreferrer">Analysis by Stockfish, GPL-3.0</a></div></footer>
+    <footer className="landing-footer"><div className="landing-wrap"><span>© 2026 chessyoda.com</span></div></footer>
   </div>;
 }
