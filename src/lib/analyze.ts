@@ -58,8 +58,8 @@ export async function analyzePgn(engine: Engine, pgn: string, playerColor: "w" |
       san: m.san,
       uci: m.from + m.to + (m.promotion ?? ""),
       color: m.color,
-      before: analyses[i],
-      after: analyses[i + 1],
+      before: analyses[i]!,
+      after: analyses[i + 1]!,
       byPlayer: m.color === playerColor,
     }),
   );

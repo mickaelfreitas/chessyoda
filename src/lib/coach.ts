@@ -42,7 +42,7 @@ export function classifyMove(loss: number, playedBest: boolean): MoveLabel {
 }
 
 export function isEndgame(fen: string) {
-  const board = fen.split(" ")[0];
+  const board = fen.split(" ")[0] ?? "";
   const pieces = board.replace(/[^nbrqNBRQ]/g, "").length;
   return pieces <= 4;
 }
@@ -132,8 +132,8 @@ export function describeThreat(fen: string, player: Color, threatMove: string | 
     return { text, squares: [...new Set([to, ...hanging])], arrow: { from, to } };
   }
   if (hanging.length) {
-    const p = chess.get(hanging[0])!;
-    return { text: `Your ${PIECE_NAME[p.type]} on ${hanging[0]} is under attack.`, squares: hanging };
+    const p = chess.get(hanging[0]!)!;
+    return { text: `Your ${PIECE_NAME[p.type]} on ${hanging[0]!} is under attack.`, squares: hanging };
   }
   return { text: "No immediate threat — you have time to improve your position.", squares: [] };
 }
@@ -154,7 +154,7 @@ export function buildHint(fen: string, player: Color, best: string, lines: { cp:
     return null;
   }
   const sign = player === "w" ? 1 : -1;
-  const gap = lines.length > 1 ? (capEval(lines[0].cp) - capEval(lines[1].cp)) * sign : 0;
+  const gap = lines.length > 1 ? (capEval(lines[0]!.cp) - capEval(lines[1]!.cp)) * sign : 0;
   const myHanging = hangingPieces(fen, player);
   const enemyHanging = hangingPieces(fen, player === "w" ? "b" : "w");
   let nudge = "Improve your least active piece.";

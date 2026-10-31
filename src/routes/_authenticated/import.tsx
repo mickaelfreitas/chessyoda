@@ -50,7 +50,7 @@ function ImportPage() {
       let puzzles = 0;
       for (let i = 0; i < todo.length; i++) {
         if (cancel.current) break;
-        const g = todo[i];
+        const g = todo[i]!;
         setStatus(`Analyzing game ${i + 1} of ${todo.length} (vs ${g.opponent})`);
         setProgress((i / Math.max(1, todo.length)) * 100);
         const moves = await analyzePgn(engine, g.pgn, g.playerColor === "white" ? "w" : "b", 100);
