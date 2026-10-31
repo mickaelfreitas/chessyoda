@@ -16,26 +16,57 @@ export const explainMistake = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const apiKey = process.env["LOVABLE_API_KEY"];
-    if (!apiKey) throw new Error("AI is not configured");
+    if (!apiKey) return { text: null, error: "AI is not configured." };
     const prompt = `Here is the position (FEN): ${data.fen}
 Move played: ${data.played}
 Stockfish's best line: ${data.bestLine.join(" ")}
 
 Explain the mistake to a ${data.rating}-level player in 2–3 sentences. Only refer to moves in the engine line; never invent moves.`;
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
       method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      headers: {
+        "Lovable-API-Key": apiKey,
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "X-Lovable-AIG-SDK": "fetch",
+      },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: "You are Chess Yoda, a calm, concise chess coach." },
-          { role: "user", content: prompt },
-        ],
+        model: "openai/gpt-6-astra",
+        stream: true,
+        store: false,
+        reasoning: { effort: "low" },
+        instructions: "You are Chess Yoda, a calm, concise chess coach. Plain text, no markdown.",
+        input: prompt,
       }),
     });
     if (res.status === 429) return { text: null, error: "Too many requests — try again in a moment." };
     if (res.status === 402) return { text: null, error: "AI credits are used up for this workspace." };
-    if (!res.ok) return { text: null, error: "The coach couldn't answer right now." };
-    const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-    return { text: json.choices?.[0]?.message?.content?.trim() ?? "", error: null };
+    if (!res.ok || !res.body) return { text: null, error: "The coach couldn't answer right now." };
+
+    // Consume the SSE stream and collect text deltas.
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = "";
+    let text = "";
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      const events = buf.split("\n\n");
+      buf = events.pop() ?? "";
+      for (const ev of events) {
+        for (const line of ev.split("\n")) {
+          if (!line.startsWith("data:")) continue;
+          const payload = line.slice(5).trim();
+          if (!payload || payload === "[DONE]") continue;
+          try {
+            const j = JSON.parse(payload) as { type?: string; delta?: string };
+            if (j.type === "response.output_text.delta" && j.delta) text += j.delta;
+          } catch {
+            /* ignore partial */
+          }
+        }
+      }
+    }
+    return { text: text.trim() || null, error: text.trim() ? null : "The coach had nothing to say." };
   });
