@@ -23,6 +23,7 @@ function buildPoints(n: number): Pt[] {
   let total = 0;
   for (let i = 0; i < prof.length - 1; i++) {
     const a = prof[i], b = prof[i + 1];
+    if (!a || !b) continue;
     const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
     total += len * ((a[1] + b[1]) / 2 + 0.02);
     segs.push({ a, b, c: total });
@@ -33,6 +34,7 @@ function buildPoints(n: number): Pt[] {
   for (let i = 0; i < bodyN; i++) {
     const r0 = Math.random() * total;
     const s = segs.find((g) => g.c >= r0) ?? segs[segs.length - 1];
+    if (!s) continue;
     const u = Math.random();
     const y = s.a[0] + (s.b[0] - s.a[0]) * u;
     const r = s.a[1] + (s.b[1] - s.a[1]) * u;
@@ -41,9 +43,10 @@ function buildPoints(n: number): Pt[] {
   }
 
   // The cross on top: a vertical and a horizontal bar
-  const boxes = [[-0.05, 0.05, 0.68, 1.0], [-0.17, 0.17, 0.8, 0.87]];
+  const boxes: [number, number, number, number][] = [[-0.05, 0.05, 0.68, 1.0], [-0.17, 0.17, 0.8, 0.87]];
   for (let i = bodyN; i < n; i++) {
     const b = boxes[Math.random() < 0.6 ? 0 : 1];
+    if (!b) continue;
     const face = Math.floor(Math.random() * 4);
     let x = b[0] + Math.random() * (b[1] - b[0]);
     let y = b[2] + Math.random() * (b[3] - b[2]);
@@ -58,7 +61,7 @@ function buildPoints(n: number): Pt[] {
 }
 
 export default function ParticleKing({
-  color = "#00FF6E",
+  color = "",
   particles = 7000,
   spin = 0.35,
   className,
@@ -81,7 +84,7 @@ export default function ParticleKing({
       c.height = Math.max(1, Math.round(r.height * d));
     };
     fit();
-    const ro = new ResizeObserver(fit);
+    const ro = new ResizeObserver(() => { fit(); if (still) frame(); });
     ro.observe(c);
 
     let mx = 0, my = 0;
@@ -110,7 +113,7 @@ export default function ParticleKing({
       const S = Math.min(w, h) * 0.4, cx = w / 2, cyy = h / 2 + S * 0.05;
       const scan = ((t * 0.28) % 1) * 2.4 - 1.2; // scan line sweeping upward
       const size = Math.max(1, 1.15 * d);
-      ctx.fillStyle = opts.current.color;
+      ctx.fillStyle = opts.current.color || getComputedStyle(c).getPropertyValue("--orb-particle").trim();
 
       for (const p of pts) {
         const x1 = p.x * cy - p.z * sy;

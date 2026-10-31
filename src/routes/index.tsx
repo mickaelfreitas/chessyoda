@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import ParticleKing from "@/components/ParticleKing";
-import { cssVar } from "@/lib/queries";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -45,7 +44,7 @@ function Index() {
         </div>
       </div>
       <div className="hero-orbs" aria-label="Chess king and Yoda particle orbs">
-        <div><ParticleKing color={cssVar("--orb-particle")} /></div>
+        <div><ParticleKing /></div>
         <iframe src="/particle-yoda.html" title="Yoda-shaped green particle orb" />
       </div>
         <ul className="grid gap-3 sm:grid-cols-3">
