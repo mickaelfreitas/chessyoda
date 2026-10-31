@@ -29,6 +29,13 @@
       "when": 1793464891304,
       "tag": "0003_resumable_games_and_rated_usage",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793464936312,
+      "tag": "0004_puzzle_retry_unique_index",
+      "breakpoints": true
     }
   ]
 }

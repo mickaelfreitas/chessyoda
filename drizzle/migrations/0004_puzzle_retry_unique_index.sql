@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX puzzles_retry_unique ON public.puzzles(user_id, game_id, source_move_key);
