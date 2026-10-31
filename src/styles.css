@@ -192,7 +192,7 @@
 .landing .landing-button:hover { box-shadow: none; }
 .landing-nav-actions .landing-button, .landing .landing-small { min-height: 44px; padding: 10px 18px; }
 .landing-hero { padding: 20px 40px 52px; }
-.landing-hero-inner { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); align-items: center; gap: 48px; min-height: min(630px, calc(100svh - 190px)); }
+.landing-hero-inner { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); align-items: center; gap: 48px; min-height: min(510px, calc(100svh - 190px)); }
 .landing-hero-text { display: flex; flex-direction: column; gap: 24px; min-width: 0; max-width: 470px; z-index: 1; }
 .landing-hero-text .landing-lead { font-size: 16px; max-width: 30em; }
 .landing-force { color: var(--landing-accent); }
