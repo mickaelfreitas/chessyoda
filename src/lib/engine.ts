@@ -110,10 +110,10 @@ export class Engine {
   }
 }
 
-/** Map an approximate Elo (800–2200) to Stockfish skill level + depth limit. */
+/** Map an approximate Elo (800–2400) to Stockfish skill level + depth limit. */
 export function eloToEngineSettings(elo: number) {
-  const e = Math.min(2200, Math.max(800, elo));
-  const t = (e - 800) / 1400;
+  const e = Math.min(2400, Math.max(800, elo));
+  const t = (e - 800) / 1600;
   return {
     skill: Math.round(t * 20),
     depth: Math.max(1, Math.round(1 + t * 13)),
