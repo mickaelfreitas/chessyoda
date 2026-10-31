@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ParticleKing from "@/components/ParticleKing";
+import ParticleLineup from "@/components/ParticleLineup";
 import { LandingBoard } from "@/components/LandingBoard";
 
 export const Route = createFileRoute("/")({
@@ -41,12 +41,14 @@ function Index() {
       <section className="landing-hero">
         <div className="landing-wrap landing-hero-inner">
           <div className="landing-hero-text">
-            <iframe className="landing-yoda" src="/particle-yoda.html" title="Yoda-shaped green particle orb" />
             <h1>Improve your<br />chess <span className="landing-force">force.</span></h1>
             <p className="landing-lead">A training partner that plays at your level, from 800 to 2400, catches blunders the moment you make them, and turns every mistake into tomorrow’s puzzle.</p>
             <div className="landing-button-row"><Button asChild className="landing-button"><Link to="/play">Start a game</Link></Button><Button asChild variant="outline" className="landing-button"><a href="#coach">How the coach works</a></Button></div>
           </div>
-          <div className="landing-particles" aria-label="Chess king particle visual"><div className="landing-king"><ParticleKing /></div></div>
+          <div className="landing-particles" aria-label="Yoda above a lineup of chess pieces">
+            <iframe className="landing-yoda" src="/particle-yoda.html" title="Yoda-shaped green particle orb" />
+            <div className="landing-lineup"><ParticleLineup /></div>
+          </div>
         </div>
       </section>
       <section className="landing-section" id="play">
