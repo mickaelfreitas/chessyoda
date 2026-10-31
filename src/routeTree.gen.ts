@@ -13,7 +13,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as AuthenticatedImportRouteImport } from './routes/_authenticated/import'
 import { Route as AuthenticatedPlayRouteImport } from './routes/_authenticated/play'
+import { Route as AuthenticatedProgressRouteImport } from './routes/_authenticated/progress'
 import { Route as AuthenticatedPuzzlesRouteImport } from './routes/_authenticated/puzzles'
 import { Route as AuthenticatedReviewIndexRouteImport } from './routes/_authenticated/review.index'
 import { Route as AuthenticatedReviewGameIdRouteImport } from './routes/_authenticated/review.$gameId'
@@ -37,9 +39,19 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedImportRoute = AuthenticatedImportRouteImport.update({
+  id: '/import',
+  path: '/import',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPlayRoute = AuthenticatedPlayRouteImport.update({
   id: '/play',
   path: '/play',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProgressRoute = AuthenticatedProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPuzzlesRoute = AuthenticatedPuzzlesRouteImport.update({
@@ -64,7 +76,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/import': typeof AuthenticatedImportRoute
   '/play': typeof AuthenticatedPlayRoute
+  '/progress': typeof AuthenticatedProgressRoute
   '/puzzles': typeof AuthenticatedPuzzlesRoute
   '/review/$gameId': typeof AuthenticatedReviewGameIdRoute
   '/review/': typeof AuthenticatedReviewIndexRoute
@@ -73,7 +87,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/import': typeof AuthenticatedImportRoute
   '/play': typeof AuthenticatedPlayRoute
+  '/progress': typeof AuthenticatedProgressRoute
   '/puzzles': typeof AuthenticatedPuzzlesRoute
   '/review/$gameId': typeof AuthenticatedReviewGameIdRoute
   '/review': typeof AuthenticatedReviewIndexRoute
@@ -84,7 +100,9 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/import': typeof AuthenticatedImportRoute
   '/_authenticated/play': typeof AuthenticatedPlayRoute
+  '/_authenticated/progress': typeof AuthenticatedProgressRoute
   '/_authenticated/puzzles': typeof AuthenticatedPuzzlesRoute
   '/_authenticated/review/$gameId': typeof AuthenticatedReviewGameIdRoute
   '/_authenticated/review/': typeof AuthenticatedReviewIndexRoute
@@ -95,7 +113,9 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/reset-password'
+    | '/import'
     | '/play'
+    | '/progress'
     | '/puzzles'
     | '/review/$gameId'
     | '/review/'
@@ -104,7 +124,9 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/reset-password'
+    | '/import'
     | '/play'
+    | '/progress'
     | '/puzzles'
     | '/review/$gameId'
     | '/review'
@@ -114,7 +136,9 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/reset-password'
+    | '/_authenticated/import'
     | '/_authenticated/play'
+    | '/_authenticated/progress'
     | '/_authenticated/puzzles'
     | '/_authenticated/review/$gameId'
     | '/_authenticated/review/'
@@ -157,11 +181,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/import': {
+      id: '/_authenticated/import'
+      path: '/import'
+      fullPath: '/import'
+      preLoaderRoute: typeof AuthenticatedImportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/play': {
       id: '/_authenticated/play'
       path: '/play'
       fullPath: '/play'
       preLoaderRoute: typeof AuthenticatedPlayRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/progress': {
+      id: '/_authenticated/progress'
+      path: '/progress'
+      fullPath: '/progress'
+      preLoaderRoute: typeof AuthenticatedProgressRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/puzzles': {
@@ -189,14 +227,18 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedImportRoute: typeof AuthenticatedImportRoute
   AuthenticatedPlayRoute: typeof AuthenticatedPlayRoute
+  AuthenticatedProgressRoute: typeof AuthenticatedProgressRoute
   AuthenticatedPuzzlesRoute: typeof AuthenticatedPuzzlesRoute
   AuthenticatedReviewGameIdRoute: typeof AuthenticatedReviewGameIdRoute
   AuthenticatedReviewIndexRoute: typeof AuthenticatedReviewIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedImportRoute: AuthenticatedImportRoute,
   AuthenticatedPlayRoute: AuthenticatedPlayRoute,
+  AuthenticatedProgressRoute: AuthenticatedProgressRoute,
   AuthenticatedPuzzlesRoute: AuthenticatedPuzzlesRoute,
   AuthenticatedReviewGameIdRoute: AuthenticatedReviewGameIdRoute,
   AuthenticatedReviewIndexRoute: AuthenticatedReviewIndexRoute,
