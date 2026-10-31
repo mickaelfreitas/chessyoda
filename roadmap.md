@@ -1,4 +1,7 @@
 # Requested updates
+- [ ] Add captured material in play/review; take-back and possible-move toggles; rated eligibility.
+- [ ] Add secured Why to warnings; per-move autosave, pause and resume/delete unfinished games.
+- [ ] Add Glicko-2 uncertainty, specified Bayesian eight-week forecast after 20 rated games, and last-10 blunder average.
 - [x] Try a compact left-side title with Yoda above the supplied particle chess-piece lineup; desktop and mobile render without overlap or overflow, and coach controls still work.
 - [x] Update hero title and lowercase wordmark, remove footer attribution, separate Yoda above the title, and match particle styling and angular speed; checked desktop and mobile.
 - [x] Match the supplied landing HTML using IBM Plex Mono; desktop, mobile, particle visuals, and all coach demonstration controls verified.
