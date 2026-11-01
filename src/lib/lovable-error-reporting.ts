@@ -1,21 +1,21 @@
-type LovableErrorOptions = {
+type ErrorReportOptions = {
   mechanism?: "manual" | "onerror" | "unhandledrejection" | "react_error_boundary";
   handled?: boolean;
   severity?: "error" | "warning" | "info";
 };
 
-type LovableEvents = {
+type EditorEvents = {
   track?: (event: string, properties?: Record<string, unknown>) => string | null;
   captureException?: (
     error: unknown,
     context?: Record<string, unknown>,
-    options?: LovableErrorOptions,
+    options?: ErrorReportOptions,
   ) => void;
 };
 
 declare global {
   interface Window {
-    __lovableEvents?: LovableEvents;
+    __lovableEvents?: EditorEvents;
     __lovableReportRuntimeError?: (payload: {
       message: string;
       stack?: string;
@@ -24,7 +24,7 @@ declare global {
   }
 }
 
-export function reportLovableError(_error: unknown, _context: Record<string, unknown> = {}) {
+export function reportApplicationError(_error: unknown, _context: Record<string, unknown> = {}) {
   if (typeof window === "undefined") return;
   const safeError = new Error("An application error occurred.");
   delete safeError.stack;
@@ -40,7 +40,7 @@ export function reportLovableError(_error: unknown, _context: Record<string, unk
     },
   );
   // Prod React does not rethrow boundary-caught errors to window.onerror, so the
-  // editor's telemetry never sees them. Forward to lovable.js's reporting hook,
+  // editor's telemetry never sees them. Forward to the editor's reporting hook,
   // which is present only inside the editor preview.
   window.__lovableReportRuntimeError?.({
     message: "An application error occurred.",

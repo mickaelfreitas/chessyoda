@@ -1,4 +1,5 @@
 # Requested updates
+- [ ] Clean cosmetic platform references and rename the application-owned diagnostic wrapper; preserve required metadata/integrations and verify the app.
 - [x] Compute replayed-line material outcomes, capture labels and verbal swing bands; cap Why at three sentences; material, threshold, promotion, mate and output tests pass.
 - [x] Re-run the same five saved mistakes signed-in and compare old/new explanations; all five displayed answers have three sentences, with net outcomes distinguishing trades from gains.
 - [x] Improve Why: 300 tokens, complete-sentence truncation, verified chess/engine facts; five saved mistakes tested signed-in.

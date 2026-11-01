@@ -9,7 +9,16 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
+> [!IMPORTANT]
+> This repository is connected to a two-way editing workflow. Avoid rewriting
+> published Git history — force pushing, or rebasing/amending/squashing commits
+> that are already pushed — because this can replace saved project history.
+>
+> Commits pushed to the connected branch sync back to the editor, so keep the
+> branch in a working state.
+
 ## Architecture rules
+- Keep platform metadata, generated authentication protocols, deployment configuration and external diagnostic hooks intact; use neutral names for application-owned wrappers so repository cleanup does not break the connected workflow.
 - Stockfish runs client-side from `public/stockfish/` (lite single-threaded WASM) via `src/lib/engine.ts`; scores are normalized to White's POV — keeps it free of cross-origin-isolation headers and server cost.
 - Live coaching (labels, safety net, threats, hints) is pure rule code in `src/lib/coach.ts` from engine data, never AI — keeps play instant; covered by `src/test/coach.test.ts`.
 - AI mistake explanations run in a `createServerFn` (`src/lib/explain.functions.ts`) behind `requireSupabaseAuth`, not a Supabase Edge Function — TanStack Start convention.
