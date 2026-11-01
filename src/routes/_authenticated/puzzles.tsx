@@ -15,7 +15,10 @@ import { SKILL_AXES } from "@/lib/skills";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/puzzles")({
-  validateSearch: (search: Record<string, unknown>): { category?: string } => ({ category: typeof search.category === "string" && SKILL_AXES.some((a) => a === search.category) ? search.category : undefined }),
+  validateSearch: (search: Record<string, unknown>): { category?: string } => {
+    const category = search["category"];
+    return typeof category === "string" && SKILL_AXES.some((a) => a === category) ? { category } : {};
+  },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
@@ -42,7 +45,7 @@ function Puzzles() {
   const queue = useMemo(() => [...filtered.filter((p) => p.status === "failed"), ...filtered.filter((p) => p.status === "new")], [filtered]);
   const [currentId, setCurrentId] = useState<string | null>(null);
   const current = filtered.find((p) => p.id === currentId) ?? queue[0] ?? null;
-  const filter = <Select value={category ?? "all"} onValueChange={(value) => { setCurrentId(null); void navigate({ search: { category: value === "all" ? undefined : value } }); }}><SelectTrigger aria-label="Puzzle category"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All categories</SelectItem>{SKILL_AXES.filter((a) => a !== "Consistency").map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent></Select>;
+  const filter = <Select value={category ?? "all"} onValueChange={(value) => { setCurrentId(null); void navigate({ search: value === "all" ? {} : { category: value } }); }}><SelectTrigger aria-label="Puzzle category" className="shadow-none"><SelectValue /></SelectTrigger><SelectContent className="shadow-none"><SelectItem value="all">All categories</SelectItem>{SKILL_AXES.filter((a) => a !== "Consistency").map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent></Select>;
   const [fen, setFen] = useState(current?.fen ?? "");
   const [result, setResult] = useState<null | "solved" | "failed">(null);
   const [checking, setChecking] = useState(false);
