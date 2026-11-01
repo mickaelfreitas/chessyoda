@@ -3,7 +3,7 @@ import { Chess } from "chess.js";
 const mocks = vi.hoisted(() => ({ rpc: vi.fn(), fetch: vi.fn(), cache: vi.fn(), upsert: vi.fn(), handler: null as null | ((args: any) => Promise<any>) }));
 vi.mock("@tanstack/react-start", () => {
   const builder = { middleware: () => builder, inputValidator: () => builder, handler: (handler: any) => { mocks.handler = handler; return handler; } };
-  return { createServerFn: () => builder };
+  return { createServerFn: () => builder, createMiddleware: () => ({ server: (fn: any) => fn }) };
 });
 vi.mock("@tanstack/react-start/server", () => ({ getRequest: () => new Request("https://chessyoda.com", { headers: { origin: "https://chessyoda.com" } }) }));
 vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
