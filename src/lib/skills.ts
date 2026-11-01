@@ -1,6 +1,6 @@
 import { Chess } from "chess.js";
 import jStatPackage from "jstat";
-import { evalLoss, nullMoveFen, pvToSan } from "./coach";
+import { nullMoveFen, pvToSan } from "./coach";
 import type { Analysis, Engine } from "./engine";
 import type { MoveRecord } from "./types";
 const skillLoss = (record: MoveRecord) => (record.evalBefore - record.evalAfter) * (record.color === "w" ? 1 : -1);
