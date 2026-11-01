@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { RatingForecast } from "@/components/RatingForecast";
 import { ratedResults, rollingBlunders } from "@/lib/rating-forecast";
-import { KeyLearnings } from "@/components/KeyLearnings";
 import { SkillsRadar } from "@/components/SkillsRadar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 

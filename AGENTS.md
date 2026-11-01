@@ -23,3 +23,6 @@
 - Rated eligibility is derived from take-back and hint usage in both pure client rules and a database trigger; forecasting uses completed rated engine games only, Glicko-2 from the established library and a browser worker for the Bayesian grid to keep interaction responsive.
 - Landing forecast and skills demos are isolated from real progress data; initialize their supplied DOM animations in a client effect and clean up observers, listeners, timers and frames on navigation.
 - Account password fields share PasswordInput with a local, concealed-by-default visibility toggle; keep visibility separate from authentication and never persist or log entered passwords.
+- AI coaching receives chess.js-verified move descriptions and engine facts, not raw positions; reply continuations are stored with move records and older rows are enriched client-side before generation to prevent invented tactical analysis.
+- Game learnings use an authenticated owner read followed by a service-only atomic claim in game_learnings; completed generations are immutable to clients and separate from the Why quota to prevent duplicate billing or quota interference.
+- Post-game skill evidence is computed with the browser coach worker and saved in owner-scoped move records; radar posteriors use jStat Beta quantiles and never mix landing sample data into real progress.

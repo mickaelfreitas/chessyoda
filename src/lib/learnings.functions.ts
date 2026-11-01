@@ -21,6 +21,8 @@ export const generateLearnings = createServerFn({ method: "POST" })
     const { data: existing } = await context.supabase.from("game_learnings").select("*").eq("game_id", data.gameId).maybeSingle();
     if (existing?.status === "completed") return { text: existing.content, status: 200 };
     if (existing?.status === "failed" && [403, 404].includes(existing.error_status ?? 0)) return { text: null, status: existing.error_status };
+    const storedMoves = game.moves as unknown as MoveRecord[];
+    if (storedMoves.some((m) => m.byPlayer && ["mistake", "blunder"].includes(m.label ?? "") && !m.replyLine)) return { text: null, status: 422 };
     const apiKey = process.env["ANTHROPIC_API_KEY"];
     if (!apiKey) return { text: null, status: 500 };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

@@ -3,8 +3,26 @@ import { analyzeSkills } from "./skills";
 import { supabase } from "@/integrations/supabase/client";
 import type { MoveRecord } from "./types";
 import type { Json } from "@/integrations/supabase/types";
+import { pvToSan, evalLoss } from "./coach";
 
 const jobs = new Map<string, Promise<void>>();
+export async function ensureLearningFacts(gameId: string) {
+  const { data: game, error } = await supabase.from("games").select("moves").eq("id", gameId).single();
+  if (error || !game) throw new Error("Game unavailable");
+  const records = game.moves as unknown as MoveRecord[];
+  const selected = records.filter((m) => m.byPlayer && ["mistake", "blunder"].includes(m.label ?? "")).sort((a, b) => evalLoss(b.evalBefore, b.evalAfter, b.color) - evalLoss(a.evalBefore, a.evalAfter, a.color)).slice(0, 5);
+  const missing = selected.filter((m) => !m.replyLine);
+  if (!missing.length) return;
+  const engine = new Engine();
+  try {
+    for (const record of missing) {
+      const after = await engine.analyze(record.fenAfter, { depth: 14 });
+      record.replyLine = pvToSan(record.fenAfter, after.lines[0]?.pv ?? [], 4);
+    }
+    const { error: saveError } = await supabase.from("games").update({ moves: records as unknown as Json }).eq("id", gameId);
+    if (saveError) throw new Error("Facts save failed");
+  } finally { engine.terminate(); }
+}
 export function completeSkillAnalysis(gameId: string): Promise<void> {
   const existing = jobs.get(gameId);
   if (existing) return existing;

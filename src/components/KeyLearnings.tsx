@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { generateLearnings } from "@/lib/learnings.functions";
 import { Button } from "./ui/button";
 import { Loader2 } from "lucide-react";
+import { ensureLearningFacts } from "@/lib/post-game";
 
 export function KeyLearnings({ gameId }: { gameId: string }) {
   const generate = useServerFn(generateLearnings);
@@ -14,6 +15,7 @@ export function KeyLearnings({ gameId }: { gameId: string }) {
   async function run() {
     setBusy(true);
     try {
+      await ensureLearningFacts(gameId);
       const result = await generate({ data: { gameId } });
       setText(result.text); setStatus(result.status ?? 500);
       if (result.text) void queryClient.invalidateQueries({ queryKey: ["learnings"] });

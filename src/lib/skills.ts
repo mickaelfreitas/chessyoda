@@ -1,6 +1,6 @@
 import { Chess } from "chess.js";
 import { jStat } from "jstat";
-import { evalLoss, nullMoveFen } from "./coach";
+import { evalLoss, nullMoveFen, pvToSan } from "./coach";
 import type { Analysis, Engine } from "./engine";
 import type { MoveRecord } from "./types";
 
@@ -47,7 +47,7 @@ export async function analyzeSkills(engine: Engine, records: MoveRecord[]) {
     const nf = nullMoveFen(record.fenBefore);
     const passed = nf ? await engine.analyze(nf, { depth: 14 }) : null;
     const threatGain = passed ? ((before.lines[0]?.cp ?? 0) - (passed.lines[0]?.cp ?? 0)) * (record.color === "w" ? 1 : -1) : null;
-    const updated = { ...record, evalBefore: before.lines[0]?.cp ?? record.evalBefore, evalAfter: after.lines[0]?.cp ?? record.evalAfter };
+    const updated = { ...record, evalBefore: before.lines[0]?.cp ?? record.evalBefore, evalAfter: after.lines[0]?.cp ?? record.evalAfter, mateAfter: after.lines[0]?.mate ?? null, bestUci: before.bestmove, bestLine: pvToSan(record.fenBefore, before.lines[0]?.pv ?? [], 4), replyLine: pvToSan(record.fenAfter, after.lines[0]?.pv ?? [], 4) };
     output.push({ ...updated, skillTags: tagMove(updated, before, threatGain) });
   }
   return output;
