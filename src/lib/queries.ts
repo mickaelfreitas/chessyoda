@@ -54,6 +54,24 @@ export const puzzlesQuery = queryOptions({
   },
 });
 
+export const learningsQuery = queryOptions({
+  queryKey: ["learnings"],
+  queryFn: async () => {
+    const { data, error } = await supabase.from("game_learnings").select("game_id,content,updated_at").eq("status", "completed").order("updated_at", { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+});
+
+export const skillGamesQuery = queryOptions({
+  queryKey: ["skill-games"],
+  queryFn: async () => {
+    const { data, error } = await supabase.from("games").select("id,created_at,result,player_color,moves,skills_analyzed,hints_used").eq("status", "completed").order("created_at", { ascending: true });
+    if (error) throw error;
+    return data.map((g) => ({ ...g, moves: g.moves as unknown as MoveRecord[] }));
+  },
+});
+
 export function cssVar(name: string) {
   if (typeof window === "undefined") return "";
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();

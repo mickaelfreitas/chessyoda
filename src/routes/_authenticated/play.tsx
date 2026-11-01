@@ -23,6 +23,7 @@ import { CapturedMaterial } from "@/components/CapturedMaterial";
 import { CoachWhy } from "@/components/CoachWhy";
 import { TIME_CONTROLS, DEFAULT_GAME_OPTIONS, restoreChess, materialAt, isRatedUsage, legalTargets, type GameSettings, type GameSnapshot } from "@/lib/game-session";
 import { persistSession, deleteSession } from "@/lib/session-data";
+import { KeyLearnings } from "@/components/KeyLearnings";
 
 export const Route = createFileRoute("/_authenticated/play")({
   head: () => ({
@@ -388,6 +389,7 @@ function Game({ settings, onNew, id, initial }: { settings: Settings; onNew: () 
       return false;
     }
     clockHistory.current.push(beforeClock);
+    const assisted = !!hint || !!threat?.revealed;
     setFen(c.fen());
     setSelected(null);
     setThreat(null);
@@ -407,6 +409,7 @@ function Game({ settings, onNew, id, initial }: { settings: Settings; onNew: () 
       after,
       byPlayer: true,
     });
+    rec.hintUsed = assisted;
     const loss = evalLoss(rec.evalBefore, rec.evalAfter, player);
     if (coach !== "off" && loss > SAFETY_NET_THRESHOLD && !c.isCheckmate()) {
       setPending({ rec });
@@ -662,6 +665,7 @@ function Game({ settings, onNew, id, initial }: { settings: Settings; onNew: () 
             ))}
           </div>
           {coach !== "off" && <p className="text-sm">Take-backs used: <span className="font-semibold">{takebacks}</span></p>}
+          {savedId && <KeyLearnings gameId={savedId} />}
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={onNew}>New game</Button>
             <Button disabled={!savedId} onClick={() => { if (savedId) void navigate({ to: "/review/$gameId", params: { gameId: savedId } }); }}>
