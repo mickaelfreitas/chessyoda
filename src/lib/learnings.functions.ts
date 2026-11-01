@@ -46,7 +46,7 @@ export const generateLearnings = createServerFn({ method: "POST" })
         method: "POST", headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
         body: JSON.stringify({ model: EXPLANATION_MODEL, max_tokens: LEARNINGS_MAX_TOKENS, thinking: { type: "disabled" },
           system: `You are a chess coach. All supplied moves are legal and engine analysis is correct: never question or recalculate them. Based only on these engine-verified facts, write 3–5 short bullet points of key learnings for a ${rating}-level player: what went wrong, the pattern behind it, and one concrete habit to practice. Only refer to moves provided; never invent moves. Keep each bullet under 25 words. No hedging, self-corrections, or preamble. If no mistakes were recorded, say that and give general practice habits without claiming game-specific weaknesses.`,
-          messages: [{ role: "user", content: JSON.stringify({ rating, playerSide: game.player_color, result: game.result, opening, mistakes: facts }) }],
+          messages: [{ role: "user", content: JSON.stringify({ rating, playerSide: game.player_color, result: game.result, opening, mistakes: facts }) + "\nEach engine line is a separate alternative, not a played sequence. Use only explicitly supplied captures, sides, evaluations and mate facts. Do not invent defended squares, piece-pair claims or material advantages. Output exactly 3–5 bullet points, each 24 words or fewer." }],
         }),
       });
       if (!res.ok) { logExplanationStep("anthropic call", res.status); return fail(res.status); }

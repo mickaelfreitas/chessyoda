@@ -1,9 +1,9 @@
 # Requested updates
-- [ ] Improve Why: 300 tokens, complete-sentence truncation, verified chess/engine facts; test five saved mistakes.
-- [ ] Implement Part 2 key learnings with 500 tokens and factual inputs.
-- [ ] Implement Part 3 skills radar using the supplied brief.
-- [ ] Verify learning persistence, searchable Progress tab, radar scoring and category-filtered puzzles signed-in.
-- [ ] Verify Why signed-in end-to-end: own-key Anthropic test returned HTTP 200, parsing/request/error tests pass and Retry added; requester account session unavailable. Key learnings remain gated on this check.
+- [x] Improve Why: 300 tokens, complete-sentence truncation, verified chess/engine facts; five saved mistakes tested signed-in.
+- [x] Implement Part 2 key learnings with 500 tokens and factual inputs; game-over and stored review verified.
+- [x] Implement Part 3 skills radar using the supplied brief; owner-scoped tags, Beta intervals, historical snapshot and puzzle categories.
+- [x] Verify learning persistence, searchable Progress tab, real radar evidence and category-filtered puzzles signed-in; desktop and mobile have no overflow.
+- [x] Verify Why signed-in end-to-end: five saved capture/tactic/endgame mistakes returned explanations through the UI.
 - [x] Add supplied forecast and skills landing sections between Puzzles and final CTA; sample copy, animated charts and all three toggle states verified, with no mobile overflow or runtime errors.
 - [x] Refine hero to a centered face/content stack left and mockup-sized king right; verified shared center, desktop alignment, and mobile order at 320–1440px without overflow or runtime errors.
 - [x] Match training and account screens to the landing style, with lighter chessboards; account modes and mobile fit verified without runtime errors. Signed-in visual inspection remains blocked by unavailable account access, as below.
@@ -19,4 +19,4 @@
 - [x] Store DAILY_EXPLANATION_LIMIT = 300 in the existing server function; test passed.
 - [x] Security pass: audited secrets/history; secured owner RLS and cache/usage grants, atomic daily quota, validated Anthropic explanations and exact origins, generic logs/errors; patched dependencies; added GPL/README/SECURITY. 21 tests and build pass; presentation unchanged.
 - [ ] Ignore all environment files and untrack .env: blocked because .gitignore is read-only and Git state changes are managed externally.
-- [ ] Verify authenticated Anthropic explanation flow: key saved and requested model kept unchanged; requires preview sign-in for a real explanation request.
+- [x] Verify authenticated Anthropic explanation flow: model and key preserved; five saved mistakes and game learnings verified signed-in.
