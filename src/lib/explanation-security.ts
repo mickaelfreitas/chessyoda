@@ -58,5 +58,5 @@ export function checkCoachingRecord(value: unknown): { ok: true; record: MoveRec
 }
 
 export function whySystemPrompt(rating: number) {
-  return `You are a calm chess coach. All moves you are given are legal and the engine analysis is correct: never question or recalculate them. Explain to a ${rating}-level player, in 2–3 short sentences: what the played move allowed, using the opponent's reply provided; why the engine's best move is better; and one short takeaway. Only mention moves that appear in the data. No hedging, no self-corrections, no preamble.`;
+  return `You are a calm chess coach. All moves you are given are legal and the engine analysis is correct: never question or recalculate them. Explain to a ${rating}-level player what the played move allowed, using the opponent's reply provided; why the engine's best move is better; and one short takeaway. Only mention moves that appear in the data. No hedging, no self-corrections, no preamble. Use the material facts exactly as given; never describe a trade as winning material. Never mention evaluations, numbers, the engine's internal data, or words like 'verified'. Write exactly 3 sentences: what the move allowed, what was better and why, one takeaway.`;
 }

@@ -45,12 +45,12 @@ export const explainMistake = createServerFn({ method: "POST" })
       });
       if (quotaError) { logExplanationStep("daily limit"); return fail(500, "Daily limit check failed"); }
       if (!allowed) { logExplanationStep("daily limit"); return fail(429, "Daily limit reached", "Your daily explanation allowance is used up. Try again tomorrow."); }
-      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify({ ...data, model: EXPLANATION_MODEL, version: 5 })));
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify({ ...data, model: EXPLANATION_MODEL, version: 6 })));
       const cacheKey = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
       const { data: cached, error: cacheError } = await context.supabase.from("explanation_cache").select("explanation").eq("cache_key", cacheKey).maybeSingle();
       if (cacheError) { logExplanationStep("cache lookup"); return fail(500, "Cache lookup failed"); }
-      if (cached) return { text: cached.explanation, error: null, status: 200 };
-      const prompt = `Engine-verified facts (not a position to analyze):\n${JSON.stringify(data)}\nEach continuation is a separate alternative, not part of the played game. Use the side and captured piece explicitly listed for each move. A capture is not necessarily a net material win. Do not invent attacked squares, defended pieces, pins, forks, pawn structure, bishop-pair claims or material advantages absent from the facts. Explain the measured evaluation improvement when a deeper strategic reason is not supplied.`;
+      if (cached) return { text: completeExplanation(cached.explanation, null, 3), error: null, status: 200 };
+      const prompt = `Chess facts:\n${JSON.stringify(data)}\nEach continuation is a separate alternative, not part of the played game. Use the supplied net material outcomes exactly, including trades and promotions. Capture labels describe that capture within its complete supplied line, not an extra gain beyond the net result. Do not invent attacked squares, defended pieces, pins, forks, pawn structure, bishop-pair claims or material advantages absent from the facts. When both lines preserve material, say the alternative avoids the stated mistake without inventing a strategic reason. Exactly three short sentences; no evaluation numbers or internal-analysis language.`;
       let res: Response;
       try {
         res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -82,7 +82,7 @@ export const explainMistake = createServerFn({ method: "POST" })
       try {
         const response = await res.json() as { stop_reason?: string; content?: { type?: string; text?: string }[] };
         if (response.stop_reason === "refusal") return fail(403, "Explanation refused", "The explanation service declined this request.");
-        text = completeExplanation((response.content ?? []).filter((part) => part.type === "text").map((part) => part.text ?? "").join(""), response.stop_reason);
+        text = completeExplanation((response.content ?? []).filter((part) => part.type === "text").map((part) => part.text ?? "").join(""), response.stop_reason, 3);
       } catch { text = ""; }
       if (!text || text.length > 4000) { logExplanationStep("response parsing"); return fail(502, "Anthropic response had no usable text"); }
       const { error: writeError } = await supabaseAdmin.from("explanation_cache").upsert({ cache_key: cacheKey, explanation: text }, { onConflict: "cache_key", ignoreDuplicates: true });
