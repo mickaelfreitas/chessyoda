@@ -1,9 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, HelpCircle, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { Area, AreaChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { useServerFn } from "@tanstack/react-start";
 
 import { Board } from "@/components/Board";
 import { EvalBar } from "@/components/EvalBar";
@@ -11,7 +10,7 @@ import { MoveLabelBadge, labelText } from "@/components/MoveLabelBadge";
 import { Button } from "@/components/ui/button";
 import { gameQuery, profileQuery, cssVar } from "@/lib/queries";
 import { capEval, formatEval } from "@/lib/coach";
-import { explainMistake } from "@/lib/explain.functions";
+import { CoachWhy } from "@/components/CoachWhy";
 import { cn } from "@/lib/utils";
 import { CapturedMaterial } from "@/components/CapturedMaterial";
 import { materialAt } from "@/lib/game-session";
@@ -39,8 +38,6 @@ function Review() {
   const { data: profile } = useQuery(profileQuery);
   const moves = game.moves;
   const [idx, setIdx] = useState(moves.length); // 0 = start position, i = after move i
-  const [why, setWhy] = useState<Record<number, { loading: boolean; text?: string }>>({});
-  const explain = useServerFn(explainMistake);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -62,21 +59,11 @@ function Review() {
   );
 
   const showBest = cur?.byPlayer && (cur.label === "mistake" || cur.label === "blunder" || cur.label === "inaccuracy") && cur.bestUci;
-  const arrows = showBest ? [{ startSquare: cur!.bestUci.slice(0, 2), endSquare: cur!.bestUci.slice(2, 4), color: cssVar("--arrow-best") }] : [];
+  const arrows = showBest && cur?.bestUci ? [{ startSquare: cur.bestUci.slice(0, 2), endSquare: cur.bestUci.slice(2, 4), color: cssVar("--arrow-best") }] : [];
   const squareStyles: Record<string, React.CSSProperties> = cur
     ? { [cur.uci.slice(0, 2)]: { backgroundColor: "var(--highlight-last)" }, [cur.uci.slice(2, 4)]: { backgroundColor: "var(--highlight-last)" } }
     : {};
 
-  async function askWhy(ply: number) {
-    const m = moves[ply - 1]!;
-    setWhy((w) => ({ ...w, [ply]: { loading: true } }));
-    try {
-      const res = await explain({ data: { fen: m.fenBefore, played: m.san, bestLine: m.bestLine.slice(0, 8), rating: profile?.rating ?? 1400 } });
-      setWhy((w) => ({ ...w, [ply]: { loading: false, text: res.text ?? res.error ?? "" } }));
-    } catch {
-      setWhy((w) => ({ ...w, [ply]: { loading: false, text: "The coach couldn't answer right now." } }));
-    }
-  }
 
   const keyMoments = moves.filter((m) => m.byPlayer && (m.label === "mistake" || m.label === "blunder"));
   const pairs = [];
@@ -118,15 +105,7 @@ function Review() {
               </p>
             )}
             {(cur.label === "mistake" || cur.label === "blunder") && (
-              <div className="mt-3">
-                {why[cur.ply]?.text ? (
-                  <p className="rounded-lg bg-secondary p-3 text-sm">{why[cur.ply]!.text}</p>
-                ) : (
-                  <Button size="sm" onClick={() => askWhy(cur.ply)} disabled={why[cur.ply]?.loading}>
-                    {why[cur.ply]?.loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <HelpCircle className="h-4 w-4" />} Why?
-                  </Button>
-                )}
-              </div>
+              <CoachWhy key={cur.ply} record={cur} rating={profile?.rating ?? 1400} />
             )}
           </div>
         )}
