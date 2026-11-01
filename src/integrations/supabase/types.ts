@@ -52,6 +52,7 @@ export type Database = {
       }
       game_learnings: {
         Row: {
+          claim_token: string
           content: string | null
           error_status: number | null
           game_id: string
@@ -61,6 +62,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          claim_token?: string
           content?: string | null
           error_status?: number | null
           game_id: string
@@ -70,6 +72,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          claim_token?: string
           content?: string | null
           error_status?: number | null
           game_id?: string
@@ -200,6 +203,7 @@ export type Database = {
           created_at: string
           failed_count: number
           fen: string
+          first_attempt_at: string | null
           first_try_success: boolean | null
           game_id: string | null
           id: string
@@ -221,6 +225,7 @@ export type Database = {
           created_at?: string
           failed_count?: number
           fen: string
+          first_attempt_at?: string | null
           first_try_success?: boolean | null
           game_id?: string | null
           id?: string
@@ -242,6 +247,7 @@ export type Database = {
           created_at?: string
           failed_count?: number
           fen?: string
+          first_attempt_at?: string | null
           first_try_success?: boolean | null
           game_id?: string | null
           id?: string
@@ -276,6 +282,10 @@ export type Database = {
       consume_explanation_allowance: {
         Args: { p_limit: number; p_user_id: string }
         Returns: boolean
+      }
+      merge_coaching_records: {
+        Args: { p_game_id: string; p_records: Json; p_skills?: boolean }
+        Returns: undefined
       }
     }
     Enums: {
