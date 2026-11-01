@@ -32,7 +32,7 @@ describe("factual coaching", () => {
   });
   it("labels a bishop-for-knight exchange as a trade, not a material win", () => {
     const facts = lineMaterialFacts("r1bqkbnr/1p1n1ppp/p7/1Bpp4/3P4/5N2/PPP2PPP/RNBQK2R w KQkq - 0 7", ["Bxd7+", "Bxd7", "O-O", "c4"], "w");
-    expect(facts.outcome).toBe("material stays equal (bishop trade)"); expect(facts.moves.slice(0, 2).map((m) => m.captureOutcome)).toEqual(["trade", "trade"]);
+    expect(facts.outcome).toBe("material stays equal (trade: you exchange a bishop for a knight)"); expect(facts.moves.slice(0, 2).map((m) => m.captureOutcome)).toEqual(["trade", "trade"]);
   });
   it("counts a bishop lost for a pawn and labels the unmatched bishop capture", () => {
     const facts = lineMaterialFacts("4k3/8/8/1pp5/B2P4/8/8/4K3 w - - 0 1", ["dxc5", "bxa4"], "w");

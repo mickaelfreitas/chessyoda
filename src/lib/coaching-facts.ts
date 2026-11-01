@@ -52,7 +52,8 @@ export function lineMaterialFacts(fen: string, line: string[], player: Color) {
   else if (change === 0) {
     const equalAtEnd = material(end, player) === material(end, opponent);
     const traded = lost(player).flatMap((count, i) => count > 0 ? [names[pieces[i] ?? "p"]] : []);
-    outcome = `${equalAtEnd ? "material stays equal" : "material balance stays unchanged"}${traded.length ? ` (${traded.join(" and ")} trade)` : " (no net material gain)"}`;
+    const exchange = ownLost === opponentLost ? `${traded.join(" and ")} trade` : `trade: you exchange ${ownLost} for ${opponentLost}`;
+    outcome = `${equalAtEnd ? "material stays equal" : "material balance stays unchanged"}${traded.length ? ` (${exchange})` : " (no net material gain)"}`;
   } else if (ownLost && opponentLost) outcome = change < 0 ? `you lose ${ownLost} for ${opponentLost}` : `you win ${opponentLost} for ${ownLost}`;
   else if (ownLost) outcome = `you lose ${ownLost}`;
   else if (opponentLost) outcome = `you win ${opponentLost}`;
