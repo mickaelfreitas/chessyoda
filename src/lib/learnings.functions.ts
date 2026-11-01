@@ -22,7 +22,8 @@ export const generateLearnings = createServerFn({ method: "POST" })
     if (existing?.status === "completed") return { text: existing.content, status: 200 };
     if (existing?.status === "failed" && [403, 404].includes(existing.error_status ?? 0)) return { text: null, status: existing.error_status };
     const storedMoves = game.moves as unknown as MoveRecord[];
-    if (storedMoves.some((m) => m.byPlayer && ["mistake", "blunder"].includes(m.label ?? "") && !m.replyLine)) return { text: null, status: 422 };
+    const topMistakes = storedMoves.filter((m) => m.byPlayer && ["mistake", "blunder"].includes(m.label ?? "")).sort((a, b) => evalLoss(b.evalBefore, b.evalAfter, b.color) - evalLoss(a.evalBefore, a.evalAfter, a.color)).slice(0, 5);
+    if (topMistakes.some((m) => !m.replyLine)) return { text: null, status: 422 };
     const apiKey = process.env["ANTHROPIC_API_KEY"];
     if (!apiKey) return { text: null, status: 500 };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -37,10 +38,7 @@ export const generateLearnings = createServerFn({ method: "POST" })
     try {
       const { data: profile } = await context.supabase.from("profiles").select("rating").eq("id", context.userId).maybeSingle();
       const rating = profile?.rating ?? 1400;
-      const moves = game.moves as unknown as MoveRecord[];
-      const mistakes = moves.filter((m) => m.byPlayer && ["mistake", "blunder"].includes(m.label ?? ""))
-        .sort((a, b) => evalLoss(b.evalBefore, b.evalAfter, b.color) - evalLoss(a.evalBefore, a.evalAfter, a.color)).slice(0, 5);
-      const facts = mistakes.map((m) => coachingFacts(m, rating));
+      const facts = topMistakes.map((m) => coachingFacts(m, rating));
       let opening = "Opening name unavailable";
       if (game.pgn) { const chess = new Chess(); chess.loadPgn(game.pgn); opening = chess.getHeaders()["Opening"] ?? opening; }
       // No raw positions, full game or invented opening names leave this boundary.

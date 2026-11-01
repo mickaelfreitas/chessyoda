@@ -3,6 +3,7 @@ import jStatPackage from "jstat";
 import { evalLoss, nullMoveFen, pvToSan } from "./coach";
 import type { Analysis, Engine } from "./engine";
 import type { MoveRecord } from "./types";
+const skillLoss = (record: MoveRecord) => (record.evalBefore - record.evalAfter) * (record.color === "w" ? 1 : -1);
 
 export const SKILL_AXES = ["Opening play", "Tactics", "Positional play", "Endgames", "Defense", "Consistency"] as const;
 export type SkillAxis = typeof SKILL_AXES[number];
@@ -21,7 +22,7 @@ export function radarEndgame(fen: string) {
 }
 export function tagMove(record: MoveRecord, before: Analysis, threatGain: number | null): SkillTag[] {
   if (!record.byPlayer || record.hintUsed) return [];
-  const loss = evalLoss(record.evalBefore, record.evalAfter, record.color);
+  const loss = skillLoss(record);
   const tags: SkillTag[] = [];
   const number = new Chess(record.fenBefore).moveNumber();
   if (number <= 12) tags.push({ axis: "Opening play", success: loss < 50 });
@@ -64,7 +65,7 @@ export function skillScores(games: SkillGame[], puzzles: SkillPuzzle[], cutoff =
     const mine = game.moves.filter((m) => m.byPlayer && !m.hintUsed);
     for (const m of mine) for (const tag of m.skillTags ?? []) add(tag.axis, tag.success, age);
     // Old games with hint totals but no per-move markers cannot supply unbiased evidence.
-    if (!(game.hints_used && !game.moves.some((m) => m.hintUsed !== undefined))) add("Consistency", !mine.some((m) => evalLoss(m.evalBefore, m.evalAfter, m.color) >= 200), age);
+    if (!(game.hints_used && !game.moves.some((m) => m.hintUsed !== undefined))) add("Consistency", !mine.some((m) => skillLoss(m) >= 200), age);
     const entered = mine.find((m) => radarEndgame(m.fenBefore));
     if (entered && entered.evalBefore * (entered.color === "w" ? 1 : -1) >= 300) add("Endgames", game.result === (game.player_color === "white" ? "1-0" : "0-1"), age);
   });

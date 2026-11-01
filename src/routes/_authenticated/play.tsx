@@ -655,7 +655,7 @@ function Game({ settings, onNew, id, initial }: { settings: Settings; onNew: () 
       </Dialog>
 
       <Dialog open={!!over}>
-        <DialogContent className="training [&>button]:hidden">
+        <DialogContent className="training max-h-[90dvh] overflow-y-auto [&>button]:hidden">
           <DialogHeader>
             <DialogTitle>{over?.reason}</DialogTitle>
             <DialogDescription>Result {over?.result}</DialogDescription>

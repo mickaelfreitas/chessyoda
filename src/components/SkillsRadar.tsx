@@ -43,7 +43,10 @@ export function SkillsRadar({ games, puzzles }: { games: SkillGame[]; puzzles: S
       <ResponsiveContainer width="100%" height="100%"><RadarChart data={data} startAngle={90} endAngle={-270} outerRadius="61%">
         <PolarGrid stroke="var(--border)" gridType="polygon" />
         <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
-        <PolarAngleAxis dataKey="axis" tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
+        <PolarAngleAxis dataKey="axis" tick={({ x, y, payload, textAnchor }: { x?: number; y?: number; payload?: { value?: string }; textAnchor?: "start" | "middle" | "end" | "inherit" }) => {
+          const s = scores.find((item) => item.axis === payload?.value);
+          return <text x={x} y={y} textAnchor={textAnchor} fill={s?.score === null ? "var(--muted-foreground)" : "var(--foreground)"} fontSize={9}><tspan x={x}>{payload?.value}</tspan><tspan x={x} dy={12}>{s?.score == null ? "Needs more data" : Math.round(s.score)}</tspan></text>;
+        }} />
         <Radar name="Upper 80% bound" dataKey="upper" stroke="var(--primary)" strokeOpacity={0.35} strokeDasharray="4 4" fill="none" />
         <Radar name="Lower 80% bound" dataKey="lower" stroke="var(--primary)" strokeOpacity={0.35} strokeDasharray="4 4" fill="none" />
         <Radar name="Score" dataKey="value" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.18} animationDuration={600} isAnimationActive={!reducedMotion} dot={({ cx, cy, payload }: { cx?: number; cy?: number; payload?: typeof data[number] }) => <circle cx={cx} cy={cy} r={3} fill={payload?.score === null ? "var(--muted-foreground)" : "var(--primary)"} />} />

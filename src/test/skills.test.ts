@@ -24,4 +24,12 @@ describe("skill evidence rules", () => {
     expect(skillScores(games.slice(0, 14), []).find((s) => s.axis === "Tactics")?.score).toBeNull();
   });
   it("counts a puzzle's first try only", () => { expect(skillScores([], [{ game_id: null, first_try_success: false, last_attempt_at: "2026-10-01", created_at: "2026-10-01" }]).find((s) => s.axis === "Tactics")?.count).toBe(1); expect(skillScores([], [{ game_id: null, first_try_success: null, last_attempt_at: null, created_at: "2026-10-01" }]).find((s) => s.axis === "Tactics")?.count).toBe(0); });
+  it("preserves historical first attempts even after a later retry", () => expect(skillScores([], [{ game_id: null, first_try_success: true, first_attempt_at: "2026-09-01", last_attempt_at: "2026-11-01", created_at: "2026-09-01" }], Date.parse("2026-10-01")).find((s) => s.axis === "Tactics")?.count).toBe(1));
+  it("endgame conversion counts a +3 entry and winning as success", () => {
+    const c = new Chess("4k3/8/8/8/8/8/R7/4K3 w - - 0 1"); const before = c.fen(); c.move("Ra3");
+    const move = { ...record, fenBefore: before, fenAfter: c.fen(), evalBefore: 300 };
+    const won = skillScores([game("1", [move])], []).find((s) => s.axis === "Endgames");
+    const drawn = skillScores([{ ...game("1", [move]), result: "1/2-1/2" }], []).find((s) => s.axis === "Endgames");
+    expect(won?.count).toBe(1); expect(won?.high).toBeGreaterThan(drawn?.high ?? 100);
+  });
 });

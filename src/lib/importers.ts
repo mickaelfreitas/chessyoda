@@ -11,7 +11,7 @@ export type ExternalGame = {
 };
 
 export async function fetchLichess(username: string, max = 20): Promise<ExternalGame[]> {
-  const res = await fetch(`https://lichess.org/api/games/user/${encodeURIComponent(username)}?max=${max}&pgnInJson=true&clocks=false&evals=false&opening=false`, {
+  const res = await fetch(`https://lichess.org/api/games/user/${encodeURIComponent(username)}?max=${max}&pgnInJson=true&clocks=false&evals=false&opening=true`, {
     headers: { Accept: "application/x-ndjson" },
   });
   if (res.status === 404) throw new Error("Lichess user not found");
@@ -32,7 +32,7 @@ export async function fetchLichess(username: string, max = 20): Promise<External
       return {
         source: "lichess" as const,
         id: g.id,
-        pgn: g.pgn,
+        pgn: g.opening?.name && !g.pgn.includes('[Opening "') ? `[Opening "${String(g.opening.name).replace(/["\\\n\r]/g, "")}"]\n${g.pgn}` : g.pgn,
         playerColor: isWhite ? ("white" as const) : ("black" as const),
         opponent: isWhite ? black : white,
         opponentElo: opp?.rating ?? null,
