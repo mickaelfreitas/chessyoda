@@ -13,6 +13,7 @@ export type MoveRecord = {
   mateAfter: number | null;
   bestUci: string;
   bestLine: string[]; // SAN from fenBefore
+  replyLine?: string[]; // SAN from fenAfter, coach's best opponent continuation
   label?: MoveLabel; // only for player moves
   mistakeType?: MistakeType;
   byPlayer: boolean;

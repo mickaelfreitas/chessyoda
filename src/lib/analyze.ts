@@ -30,6 +30,7 @@ export function buildRecord(args: {
     mateAfter: after.lines[0]?.mate ?? null,
     bestUci: before.bestmove,
     bestLine: pvToSan(args.fenBefore, before.lines[0]?.pv ?? [before.bestmove]),
+    replyLine: pvToSan(args.fenAfter, after.lines[0]?.pv ?? [], 4),
     byPlayer: args.byPlayer,
   };
   if (args.byPlayer) {
@@ -50,17 +51,20 @@ export async function analyzePgn(engine: Engine, pgn: string, playerColor: "w" |
   const fens = [history[0]?.before ?? new Chess().fen(), ...history.map((m) => m.after)];
   const analyses: Analysis[] = [];
   for (const fen of fens) analyses.push(await engine.analyze(fen, { movetime, depth: 14 }));
-  return history.map((m, i) =>
-    buildRecord({
+  return history.map((m, i) => {
+    const before = analyses[i];
+    const after = analyses[i + 1];
+    if (!before || !after) throw new Error("Missing engine analysis");
+    return buildRecord({
       ply: i + 1,
       fenBefore: m.before,
       fenAfter: m.after,
       san: m.san,
       uci: m.from + m.to + (m.promotion ?? ""),
       color: m.color,
-      before: analyses[i]!,
-      after: analyses[i + 1]!,
+      before,
+      after,
       byPlayer: m.color === playerColor,
-    }),
-  );
+    });
+  });
 }
