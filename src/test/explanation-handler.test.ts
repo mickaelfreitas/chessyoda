@@ -37,7 +37,9 @@ describe("server explanation quota", () => {
     if (!mocks.handler) throw new Error("Missing handler");
     const context = { userId: "caller-id", supabase: { from: () => ({ select: () => ({ eq: () => ({ maybeSingle: mocks.cache }) }) }) } };
     const response = await mocks.handler({ data, context });
-    const [url, request] = mocks.fetch.mock.calls[0];
+    const call = mocks.fetch.mock.calls[0];
+    if (!call) throw new Error("Expected an Anthropic request");
+    const [url, request] = call;
     expect(url).toBe("https://api.anthropic.com/v1/messages");
     expect(request.headers["anthropic-version"]).toBe("2023-06-01");
     expect(request.headers["x-api-key"]).toBe("test-only-not-a-credential");
