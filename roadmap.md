@@ -1,4 +1,6 @@
 # Requested updates
+- [ ] Debug Why first with one authenticated Anthropic call, visible failures and Retry; add key learnings only after explanations work.
+- [ ] Add supplied forecast and skills landing sections between Puzzles and final CTA, preserving sample copy and animations.
 - [x] Refine hero to a centered face/content stack left and mockup-sized king right; verified shared center, desktop alignment, and mobile order at 320–1440px without overflow or runtime errors.
 - [x] Match training and account screens to the landing style, with lighter chessboards; account modes and mobile fit verified without runtime errors. Signed-in visual inspection remains blocked by unavailable account access, as below.
 - [x] Add captured material in play/review; take-back and possible-move toggles; rated eligibility with database enforcement and rule tests.
