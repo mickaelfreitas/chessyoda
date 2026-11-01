@@ -38,6 +38,10 @@ describe("factual coaching", () => {
     const facts = lineMaterialFacts("4k3/8/8/1pp5/B2P4/8/8/4K3 w - - 0 1", ["dxc5", "bxa4"], "w");
     expect(facts.outcome).toBe("you lose a bishop for a pawn"); expect(facts.moves[1]?.captureOutcome).toBe("wins material");
   });
+  it("cancels matching knight losses when the full line nets a pawn", () => {
+    const facts = lineMaterialFacts("r1b1kbnr/4qppp/p1P5/3pn3/p7/4BN2/PPP2PPP/RN1QK2R w KQkq - 1 11", ["Qxd5", "Nxf3+", "Qxf3", "Qf6"], "w");
+    expect(facts.outcome).toBe("you win a pawn");
+  });
   it("counts end material, preserving an existing unequal balance", () => expect(lineMaterialFacts("4k3/8/8/8/8/8/R7/4K3 w - - 0 1", ["Ra3"], "w").outcome).toBe("material balance stays unchanged (no net material gain)"));
   it("reports checkmate directly from the replayed board", () => {
     const b = new Chess(); for (const m of ["f3", "e5", "g4"]) b.move(m);

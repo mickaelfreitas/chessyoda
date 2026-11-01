@@ -33,7 +33,10 @@ export function lineMaterialFacts(fen: string, line: string[], player: Color) {
   const opponent = player === "w" ? "b" : "w";
   const lost = (color: Color) => inventory(start, color).map((count, i) => Math.max(0, count - (inventory(end, color)[i] ?? 0)));
   const added = (color: Color) => inventory(end, color).map((count, i) => Math.max(0, count - (inventory(start, color)[i] ?? 0)));
-  const ownLost = listPieces(lost(player)); const opponentLost = listPieces(lost(opponent));
+  const ownLosses = lost(player); const opponentLosses = lost(opponent);
+  const ownLost = listPieces(ownLosses); const opponentLost = listPieces(opponentLosses);
+  const residualOwn = listPieces(ownLosses.map((count, i) => Math.max(0, count - (opponentLosses[i] ?? 0))));
+  const residualOpponent = listPieces(opponentLosses.map((count, i) => Math.max(0, count - (ownLosses[i] ?? 0))));
   const change = material(end, player) - material(end, opponent) - (material(start, player) - material(start, opponent));
   const captureValues = (color: Color) => moves.filter((m) => m.color === color && m.captured).reduce((sum, m) => sum + values[m.captured ?? "k"], 0);
   const labels = new Map<Move, "trade" | "wins material">();
@@ -54,9 +57,9 @@ export function lineMaterialFacts(fen: string, line: string[], player: Color) {
     const traded = lost(player).flatMap((count, i) => count > 0 ? [names[pieces[i] ?? "p"]] : []);
     const exchange = ownLost === opponentLost ? `${traded.join(" and ")} trade` : `trade: you exchange ${ownLost} for ${opponentLost}`;
     outcome = `${equalAtEnd ? "material stays equal" : "material balance stays unchanged"}${traded.length ? ` (${exchange})` : " (no net material gain)"}`;
-  } else if (ownLost && opponentLost) outcome = change < 0 ? `you lose ${ownLost} for ${opponentLost}` : `you win ${opponentLost} for ${ownLost}`;
-  else if (ownLost) outcome = `you lose ${ownLost}`;
-  else if (opponentLost) outcome = `you win ${opponentLost}`;
+  } else if (residualOwn && residualOpponent) outcome = change < 0 ? `you lose ${residualOwn} for ${residualOpponent}` : `you win ${residualOpponent} for ${residualOwn}`;
+  else if (residualOwn) outcome = `you lose ${residualOwn}`;
+  else if (residualOpponent) outcome = `you win ${residualOpponent}`;
   else outcome = "material changes through promotion";
   const ownAdded = listPieces(added(player)); const opponentAdded = listPieces(added(opponent));
   if (ownAdded) outcome += `; your promotion adds ${ownAdded}`;
