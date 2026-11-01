@@ -45,12 +45,12 @@ export const explainMistake = createServerFn({ method: "POST" })
       });
       if (quotaError) { logExplanationStep("daily limit"); return fail(500, "Daily limit check failed"); }
       if (!allowed) { logExplanationStep("daily limit"); return fail(429, "Daily limit reached", "Your daily explanation allowance is used up. Try again tomorrow."); }
-      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify({ ...data, model: EXPLANATION_MODEL, version: 7 })));
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify({ ...data, model: EXPLANATION_MODEL, version: 8 })));
       const cacheKey = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
       const { data: cached, error: cacheError } = await context.supabase.from("explanation_cache").select("explanation").eq("cache_key", cacheKey).maybeSingle();
       if (cacheError) { logExplanationStep("cache lookup"); return fail(500, "Cache lookup failed"); }
       if (cached) return { text: completeExplanation(cached.explanation, null, 3), error: null, status: 200 };
-      const prompt = `Chess facts:\n${JSON.stringify(data)}\nEach continuation is a separate alternative, not part of the played game. Use the supplied net material outcomes exactly, including trades and promotions. Capture labels describe that capture within its complete supplied line, not an extra gain beyond the net result. Do not invent attacked squares, defended pieces, pins, forks, pawn structure, bishop-pair claims or material advantages absent from the facts. When both lines preserve material, say the alternative avoids the stated mistake without inventing a strategic reason. Exactly three short sentences; no evaluation numbers or internal-analysis language.`;
+      const prompt = `Chess facts:\n${JSON.stringify(data)}\nEach continuation is a separate alternative, not part of the played game. Use the net material outcomes exactly, including trades and promotions. Capture labels describe that capture within its complete line, not an extra gain beyond the net result. Do not invent attacked squares, defended pieces, pins, forks, pawn structure, bishop-pair claims or material advantages absent from the facts. When both lines preserve material, say the alternative avoids the stated mistake without inventing a strategic reason. Exactly three short sentences; no evaluation numbers or internal-analysis language. Final wording must never contain 'engine', 'analysis', 'verified', 'supplied', 'data', 'evaluation' or 'provided'. Chess square names and SAN moves are allowed. Explain only the chess, not where the information came from.`;
       let res: Response;
       try {
         res = await fetch("https://api.anthropic.com/v1/messages", {
