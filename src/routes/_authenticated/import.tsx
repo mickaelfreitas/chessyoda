@@ -12,6 +12,8 @@ import { analyzePgn } from "@/lib/analyze";
 import { existingExternalIds, saveGame } from "@/lib/data";
 import { fetchChessCom, fetchLichess } from "@/lib/importers";
 import { cn } from "@/lib/utils";
+import { useServerFn } from "@tanstack/react-start";
+import { generateLearnings } from "@/lib/learnings.functions";
 
 export const Route = createFileRoute("/_authenticated/import")({
   head: () => ({
@@ -28,6 +30,7 @@ export const Route = createFileRoute("/_authenticated/import")({
 });
 
 function ImportPage() {
+  const learn = useServerFn(generateLearnings);
   const [site, setSite] = useState<"lichess" | "chesscom">("lichess");
   const [username, setUsername] = useState("");
   const [running, setRunning] = useState(false);
@@ -53,12 +56,13 @@ function ImportPage() {
       let done = 0;
       for (let i = 0; i < todo.length; i++) {
         if (cancel.current) break;
-        const g = todo[i]!;
+        const g = todo[i];
+        if (!g) continue;
         setStatus(`Analyzing game ${i + 1} of ${todo.length} (vs ${g.opponent})`);
         setProgress((i / Math.max(1, todo.length)) * 100);
         const moves = await analyzePgn(engine, g.pgn, g.playerColor === "white" ? "w" : "b", 100);
         puzzles += moves.filter((m) => m.byPlayer && (m.label === "mistake" || m.label === "blunder")).length;
-        await saveGame({
+        const gameId = await saveGame({
           source: site,
           externalId: g.id,
           playerColor: g.playerColor,
@@ -72,6 +76,7 @@ function ImportPage() {
           takebacks: 0,
           createdAt: g.createdAt,
         });
+        await learn({ data: { gameId } });
         done++;
       }
       setProgress(100);

@@ -20,8 +20,12 @@ describe("explanation security", () => {
     expect(validateExplanationInput({ ...valid, bestLine: ["x".repeat(13)] })).toBeNull();
   });
   it("uses only the requested model", () => expect(EXPLANATION_MODEL).toBe("claude-haiku-5-5"));
-  it("caps generated output at 200 tokens", () => expect(EXPLANATION_MAX_TOKENS).toBe(200));
+  it("caps generated output at 300 tokens", () => expect(EXPLANATION_MAX_TOKENS).toBe(300));
   it("allows the exact production origin", () => expect(allowedExplanationOrigin("https://chessyoda.com")).toBe(true));
+  it("allows the app's www and published domains", () => {
+    expect(allowedExplanationOrigin("https://www.chessyoda.com")).toBe(true);
+    expect(allowedExplanationOrigin("https://chess-yoda-coach.lovable.app")).toBe(true);
+  });
   it("allows only this project's preview", () => {
     expect(allowedExplanationOrigin("https://id-preview--148f2dc3-6131-4c13-b3db-09bd09d28f7d.lovable.app")).toBe(true);
     expect(allowedExplanationOrigin("https://attacker.lovable.app")).toBe(false);

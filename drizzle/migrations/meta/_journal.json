@@ -36,6 +36,20 @@
       "when": 1793464936312,
       "tag": "0004_puzzle_retry_unique_index",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793530083552,
+      "tag": "0005_game_learnings_and_skill_evidence",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793530772487,
+      "tag": "0006_atomic_coaching_updates",
+      "breakpoints": true
     }
   ]
 }

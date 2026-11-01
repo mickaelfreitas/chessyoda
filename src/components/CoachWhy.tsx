@@ -4,6 +4,8 @@ import { HelpCircle, Loader2 } from "lucide-react";
 import { explainMistake } from "@/lib/explain.functions";
 import type { MoveRecord } from "@/lib/types";
 import { Button } from "./ui/button";
+import { Engine } from "@/lib/engine";
+import { pvToSan } from "@/lib/coach";
 
 const GENERIC = "Couldn't load the explanation. Try again.";
 
@@ -18,7 +20,15 @@ export function CoachWhy({ record, rating }: { record: MoveRecord; rating: numbe
     setFailed(false);
     setDebug(null);
     try {
-      const result = await explain({ data: { fen: record.fenBefore, played: record.san, bestLine: record.bestLine.slice(0, 8), rating: Math.round(rating) } });
+      let replyLine = record.replyLine;
+      if (!replyLine) {
+        const engine = new Engine();
+        try {
+          const analysis = await engine.analyze(record.fenAfter, { depth: 14 });
+          replyLine = pvToSan(record.fenAfter, analysis.lines[0]?.pv ?? [], 4);
+        } finally { engine.terminate(); }
+      }
+      const result = await explain({ data: { record: { ...record, bestLine: record.bestLine.slice(0, 4), replyLine }, rating: Math.round(rating) } });
       setFailed(!result.text);
       setText(result.text ?? result.error ?? GENERIC);
       if (import.meta.env.DEV && !result.text) setDebug(`HTTP ${result.status ?? "?"} — ${result.reason ?? "No reason given"}`);

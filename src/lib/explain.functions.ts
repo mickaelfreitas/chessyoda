@@ -1,7 +1,8 @@
 import { createMiddleware, createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { getRequest } from "@tanstack/react-start/server";
-import { allowedExplanationOrigin, checkExplanationInput, EXPLANATION_MODEL, EXPLANATION_MAX_TOKENS } from "./explanation-security";
+import { allowedExplanationOrigin, checkCoachingRecord, whySystemPrompt, EXPLANATION_MODEL, EXPLANATION_MAX_TOKENS } from "./explanation-security";
+import { coachingFacts, completeExplanation } from "./coaching-facts";
 import { logExplanationStep } from "./explain-diagnostics";
 
 // Single source of truth, enforced atomically by the database (UTC days).
@@ -27,12 +28,12 @@ export const explainMistake = createServerFn({ method: "POST" })
       logExplanationStep("origin check");
       return fail(403, "Origin not allowed");
     }
-    const checked = checkExplanationInput(raw);
+    const checked = checkCoachingRecord(raw);
     if (!checked.ok) {
       logExplanationStep("input validation", checked.field);
       return fail(400, `Invalid input: ${checked.field}`, "Please provide a valid position, move, line, and rating.");
     }
-    const data = checked.data;
+    const data = coachingFacts(checked.record, checked.rating);
     const apiKey = process.env["ANTHROPIC_API_KEY"];
     if (!apiKey) { logExplanationStep("configuration"); return fail(500, "Explanation service not configured"); }
     try {
@@ -44,16 +45,12 @@ export const explainMistake = createServerFn({ method: "POST" })
       });
       if (quotaError) { logExplanationStep("daily limit"); return fail(500, "Daily limit check failed"); }
       if (!allowed) { logExplanationStep("daily limit"); return fail(429, "Daily limit reached", "Your daily explanation allowance is used up. Try again tomorrow."); }
-      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify({ ...data, model: EXPLANATION_MODEL, version: 1 })));
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify({ ...data, model: EXPLANATION_MODEL, version: 5 })));
       const cacheKey = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
       const { data: cached, error: cacheError } = await context.supabase.from("explanation_cache").select("explanation").eq("cache_key", cacheKey).maybeSingle();
       if (cacheError) { logExplanationStep("cache lookup"); return fail(500, "Cache lookup failed"); }
       if (cached) return { text: cached.explanation, error: null, status: 200 };
-      const prompt = `Here is the position (FEN): ${data.fen}
-Move played: ${data.played}
-Stockfish's best line: ${data.bestLine.join(" ")}
-
-Explain the mistake to a ${data.rating}-level player in 2–3 sentences. Only refer to moves in the engine line; never invent moves.`;
+      const prompt = `Engine-verified facts (not a position to analyze):\n${JSON.stringify(data)}\nEach continuation is a separate alternative, not part of the played game. Use the side and captured piece explicitly listed for each move. A capture is not necessarily a net material win. Do not invent attacked squares, defended pieces, pins, forks, pawn structure, bishop-pair claims or material advantages absent from the facts. Explain the measured evaluation improvement when a deeper strategic reason is not supplied.`;
       let res: Response;
       try {
         res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -66,9 +63,9 @@ Explain the mistake to a ${data.rating}-level player in 2–3 sentences. Only re
           body: JSON.stringify({
             model: EXPLANATION_MODEL,
             max_tokens: EXPLANATION_MAX_TOKENS,
-            // Without this the model can spend the whole 200-token budget thinking and return no text.
+            // Keep the budget available for the visible explanation.
             thinking: { type: "disabled" },
-            system: "You are Chess Yoda, a calm, concise chess coach. Plain text, no markdown. Use only the supplied legal moves.",
+            system: whySystemPrompt(data.rating),
             messages: [{ role: "user", content: prompt }],
           }),
           signal: AbortSignal.timeout(30000),
@@ -83,8 +80,9 @@ Explain the mistake to a ${data.rating}-level player in 2–3 sentences. Only re
       }
       let text = "";
       try {
-        const response = await res.json() as { content?: { type?: string; text?: string }[] };
-        text = (response.content ?? []).filter((part) => part.type === "text").map((part) => part.text ?? "").join("").trim();
+        const response = await res.json() as { stop_reason?: string; content?: { type?: string; text?: string }[] };
+        if (response.stop_reason === "refusal") return fail(403, "Explanation refused", "The explanation service declined this request.");
+        text = completeExplanation((response.content ?? []).filter((part) => part.type === "text").map((part) => part.text ?? "").join(""), response.stop_reason);
       } catch { text = ""; }
       if (!text || text.length > 4000) { logExplanationStep("response parsing"); return fail(502, "Anthropic response had no usable text"); }
       const { error: writeError } = await supabaseAdmin.from("explanation_cache").upsert({ cache_key: cacheKey, explanation: text }, { onConflict: "cache_key", ignoreDuplicates: true });

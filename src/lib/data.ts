@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { MoveRecord } from "./types";
 import type { Json } from "@/integrations/supabase/types";
+import { completeSkillAnalysis } from "./post-game";
 
 export type NewGame = {
   source: "play" | "lichess" | "chesscom";
@@ -75,6 +76,8 @@ export async function saveGame(g: NewGame): Promise<string> {
     const { error: pe } = await supabase.from("puzzles").upsert(puzzles, { onConflict: "user_id,game_id,source_move_key", ignoreDuplicates: true });
     if (pe) throw pe;
   }
+  // Worker analysis stays off the move/clock path and persists when it completes.
+  void completeSkillAnalysis(data.id).catch(() => {});
   return data.id;
 }
 

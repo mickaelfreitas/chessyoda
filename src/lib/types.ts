@@ -14,6 +14,9 @@ export type MoveRecord = {
   bestUci: string;
   bestLine: string[]; // SAN from fenBefore
   replyLine?: string[]; // SAN from fenAfter, coach's best opponent continuation
+  hintUsed?: boolean;
+  threatAnswer?: boolean;
+  skillTags?: import("./skills").SkillTag[];
   label?: MoveLabel; // only for player moves
   mistakeType?: MistakeType;
   byPlayer: boolean;

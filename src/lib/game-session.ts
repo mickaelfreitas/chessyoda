@@ -15,7 +15,7 @@ export type GameSnapshot = {
   clock: { w: number; b: number }; clockHistory: { w: number; b: number }[];
   takebacks: number; hintsUsed: number; pending: MoveRecord | null;
   lastLabel: { label: MoveLabel; san: string; rec: MoveRecord } | null;
-  threat: { t: Threat; revealed: boolean; rec: MoveRecord } | null;
+  threat: { t: Threat; revealed: boolean; rec: MoveRecord; gain?: number; answerCorrect?: boolean } | null;
   hint: { h: Hint; level: number } | null; showEval: boolean;
   evalNow: { cp: number; mate: number | null };
 };

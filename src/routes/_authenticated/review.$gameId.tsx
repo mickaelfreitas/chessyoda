@@ -14,6 +14,7 @@ import { CoachWhy } from "@/components/CoachWhy";
 import { cn } from "@/lib/utils";
 import { CapturedMaterial } from "@/components/CapturedMaterial";
 import { materialAt } from "@/lib/game-session";
+import { KeyLearnings } from "@/components/KeyLearnings";
 
 export const Route = createFileRoute("/_authenticated/review/$gameId")({
   head: () => ({
@@ -70,6 +71,8 @@ function Review() {
   for (let i = 0; i < moves.length; i += 2) pairs.push([moves[i], moves[i + 1]] as const);
 
   return (
+    <div className="space-y-4">
+    <KeyLearnings gameId={gameId} />
     <div className="grid gap-5 lg:grid-cols-[minmax(0,520px)_1fr]">
       <div className="space-y-3">
         <div className="flex items-baseline justify-between">
@@ -162,6 +165,7 @@ function Review() {
         </div>
         <Button asChild variant="outline"><Link to="/puzzles">Train these mistakes</Link></Button>
       </div>
+    </div>
     </div>
   );
 }
