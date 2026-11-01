@@ -22,3 +22,4 @@
 - Game snapshots are serialized through a per-session save queue into the existing owner-scoped games table; replay PGN on resume to preserve repetition, and finalize the same row to avoid duplicate games/puzzles.
 - Rated eligibility is derived from take-back and hint usage in both pure client rules and a database trigger; forecasting uses completed rated engine games only, Glicko-2 from the established library and a browser worker for the Bayesian grid to keep interaction responsive.
 - Landing forecast and skills demos are isolated from real progress data; initialize their supplied DOM animations in a client effect and clean up observers, listeners, timers and frames on navigation.
+- Account password fields share PasswordInput with a local, concealed-by-default visibility toggle; keep visibility separate from authentication and never persist or log entered passwords.
