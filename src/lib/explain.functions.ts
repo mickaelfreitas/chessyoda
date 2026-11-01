@@ -45,7 +45,7 @@ export const explainMistake = createServerFn({ method: "POST" })
       });
       if (quotaError) { logExplanationStep("daily limit"); return fail(500, "Daily limit check failed"); }
       if (!allowed) { logExplanationStep("daily limit"); return fail(429, "Daily limit reached", "Your daily explanation allowance is used up. Try again tomorrow."); }
-      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify({ ...data, model: EXPLANATION_MODEL, version: 10 })));
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify({ ...data, model: EXPLANATION_MODEL, version: 11 })));
       const cacheKey = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
       const { data: cached, error: cacheError } = await context.supabase.from("explanation_cache").select("explanation").eq("cache_key", cacheKey).maybeSingle();
       if (cacheError) { logExplanationStep("cache lookup"); return fail(500, "Cache lookup failed"); }
@@ -65,7 +65,7 @@ export const explainMistake = createServerFn({ method: "POST" })
             max_tokens: EXPLANATION_MAX_TOKENS,
             // Keep the budget available for the visible explanation.
             thinking: { type: "disabled" },
-            system: whySystemPrompt(data.rating) + " The swingLabel is mistake severity, NEVER material loss: 'costs about a piece’s worth' must not be repeated as losing a piece when the material outcome is unchanged. If material balance stays unchanged, say only that the exchange gains no material, never that the player is level or lost material. Prefer plain net outcomes such as 'wins a pawn' over listing cancelling captures. Do not claim compensation or initiative.",
+            system: whySystemPrompt(data.rating) + " The swingLabel is mistake severity, NEVER material loss: 'costs about a piece’s worth' must not be repeated as losing a piece when the material outcome is unchanged. If material balance stays unchanged, say only that the exchange gains no material, never that the player is level or lost material. Prefer plain net outcomes such as 'wins a pawn' over listing cancelling captures. Never say 'ahead', 'down', 'level', 'compensation', 'initiative', 'undefended', 'opens a line', 'weakened', or 'passive': these conclusions are not provided. Use 'loses a bishop for two pawns' or 'wins a pawn' literally, not a claim about total material balance. Keep each sentence short and describe only the net outcome, the named replies, and a general habit.",
             messages: [{ role: "user", content: prompt }],
           }),
           signal: AbortSignal.timeout(30000),
