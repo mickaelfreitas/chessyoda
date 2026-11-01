@@ -8,7 +8,7 @@
 
 ## Why I built it
 
-I wanted to climb from 1400 to 1800. Existing tools show you the engine's best move after the game, but nothing explains why you keep missing it or spots the patterns in your mistakes. So I built the coach I wanted.
+I wanted to self improve faster in chess. Existing tools show you the engine’s best move after the game, but none of them explains why you keep missing it, spots the patterns in your mistakes, digs through your game history to find your weaknesses, builds puzzles tailored to you, and forecasts your progress. So I built the coach I wanted.
 
 ## Features
 
