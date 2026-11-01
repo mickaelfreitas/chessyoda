@@ -51,12 +51,6 @@ export default {
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
     } catch (error) {
-      if (import.meta.env.DEV && error instanceof Error) {
-        const safePaths = error.stack?.match(/(?:\/src\/|\/node_modules\/)[\w./?@-]+/g) ?? [];
-        const missingExport = error.message.match(/does not provide an export named ['"]([\w]+)['"]/);
-        const logger = (globalThis as { __chessYodaConsoleInfo?: (...args: unknown[]) => void }).__chessYodaConsoleInfo;
-        logger?.("SSR diagnostic", error.name, safePaths, missingExport?.[1] ?? "");
-      }
       console.error("An application request failed.");
       return new Response(renderErrorPage(), {
         status: 500,
