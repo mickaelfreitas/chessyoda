@@ -1,7 +1,10 @@
 import { Chess, validateFen } from "chess.js";
+import type { MoveRecord } from "./types";
+import { coachingFacts } from "./coaching-facts";
 
 export const EXPLANATION_MODEL = "claude-haiku-5-5";
 export const EXPLANATION_MAX_TOKENS = 300;
+export const LEARNINGS_MAX_TOKENS = 500;
 export type ExplanationInput = { fen: string; played: string; bestLine: string[]; rating: number };
 
 export type ExplanationInvalidField = "body" | "fen" | "played" | "bestLine" | "rating";
@@ -33,4 +36,25 @@ export function allowedExplanationOrigin(origin: string | null, development = fa
   return origin === "https://chessyoda.com" ||
     origin === "https://id-preview--148f2dc3-6131-4c13-b3db-09bd09d28f7d.lovable.app" ||
     (development && origin === "http://localhost:8080");
+}
+
+export function checkCoachingRecord(value: unknown): { ok: true; record: MoveRecord; rating: number } | { ok: false; field: ExplanationInvalidField } {
+  if (!value || typeof value !== "object") return { ok: false, field: "body" };
+  const { record, rating } = value as { record?: MoveRecord; rating?: number };
+  if (!record || typeof record !== "object") return { ok: false, field: "body" };
+  const checked = checkExplanationInput({ fen: record.fenBefore, played: record.san, bestLine: record.bestLine, rating });
+  if (!checked.ok) return checked;
+  if (typeof record.fenAfter !== "string" || record.fenAfter.length > 120 || !validateFen(record.fenAfter).ok) return { ok: false, field: "fen" };
+  if (![record.evalBefore, record.evalAfter].every((n) => typeof n === "number" && Number.isFinite(n) && Math.abs(n) <= 10000) || !["w", "b"].includes(record.color) || (record.mateAfter !== null && (!Number.isInteger(record.mateAfter) || Math.abs(record.mateAfter) > 200))) return { ok: false, field: "body" };
+  if (!Array.isArray(record.replyLine) || record.replyLine.length > 4 || record.replyLine.some((m) => typeof m !== "string" || m.length > 12)) return { ok: false, field: "bestLine" };
+  try {
+    const canonical = { ...record, fenBefore: checked.data.fen, san: checked.data.played, bestLine: checked.data.bestLine };
+    if (new Chess(canonical.fenBefore).turn() !== canonical.color) return { ok: false, field: "body" };
+    coachingFacts(canonical, checked.data.rating);
+    return { ok: true, record: canonical, rating: checked.data.rating };
+  } catch { return { ok: false, field: "bestLine" }; }
+}
+
+export function whySystemPrompt(rating: number) {
+  return `You are a calm chess coach. All moves you are given are legal and the engine analysis is correct: never question or recalculate them. Explain to a ${rating}-level player, in 2–3 short sentences: what the played move allowed, using the opponent's reply provided; why the engine's best move is better; and one short takeaway. Only mention moves that appear in the data. No hedging, no self-corrections, no preamble.`;
 }
