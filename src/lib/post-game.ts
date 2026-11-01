@@ -19,7 +19,7 @@ export async function ensureLearningFacts(gameId: string) {
       const after = await engine.analyze(record.fenAfter, { depth: 14 });
       record.replyLine = pvToSan(record.fenAfter, after.lines[0]?.pv ?? [], 4);
     }
-    const { error: saveError } = await supabase.from("games").update({ moves: records as unknown as Json }).eq("id", gameId);
+    const { error: saveError } = await supabase.rpc("merge_coaching_records", { p_game_id: gameId, p_records: missing.map((m) => ({ ply: m.ply, uci: m.uci, replyLine: m.replyLine })) as unknown as Json, p_skills: false });
     if (saveError) throw new Error("Facts save failed");
   } finally { engine.terminate(); }
 }
@@ -36,12 +36,12 @@ export function completeSkillAnalysis(gameId: string): Promise<void> {
       // Older hinted games do not identify assisted plies: exclude rather than guess.
       const input = game.hints_used && !records.some((m) => m.hintUsed !== undefined) ? records.map((m) => ({ ...m, hintUsed: true })) : records;
       const moves = await analyzeSkills(engine, input);
-      const { error: saveError } = await supabase.from("games").update({ moves: moves as unknown as Json, skills_analyzed: true }).eq("id", gameId);
-      if (saveError) throw new Error("Analysis save failed");
-      for (const m of moves) if (m.byPlayer && m.skillTags?.length) {
-        const { error: tagError } = await supabase.from("puzzles").update({ categories: [...new Set(m.skillTags.map((t) => t.axis))] }).eq("game_id", gameId).eq("source_move_key", `${m.ply}:${m.uci}`);
+      for (const m of moves) if (m.byPlayer) {
+        const { error: tagError } = await supabase.from("puzzles").update({ categories: [...new Set((m.skillTags ?? []).map((t) => t.axis))] }).eq("game_id", gameId).eq("source_move_key", `${m.ply}:${m.uci}`);
         if (tagError) throw new Error("Puzzle tags save failed");
       }
+      const { error: saveError } = await supabase.rpc("merge_coaching_records", { p_game_id: gameId, p_records: moves as unknown as Json, p_skills: true });
+      if (saveError) throw new Error("Analysis save failed");
     } finally { engine.terminate(); }
   })();
   jobs.set(gameId, job);

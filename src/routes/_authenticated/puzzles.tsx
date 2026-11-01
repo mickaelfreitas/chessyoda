@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { SKILL_AXES } from "@/lib/skills";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/puzzles")({
   validateSearch: (search: Record<string, unknown>): { category?: string } => {
@@ -52,6 +53,7 @@ function Puzzles() {
   const [selected, setSelected] = useState<Square | null>(null);
   const engine = useRef<Engine | null>(null);
   const bestEval = useRef<Promise<number> | null>(null);
+  const attemptInFlight = useRef(false);
 
   useEffect(() => {
     engine.current = new Engine();
@@ -90,7 +92,7 @@ function Puzzles() {
   const sign = turn === "w" ? 1 : -1;
 
   async function attempt(from: string, to: string) {
-    if (result || checking || !current) return false;
+    if (attemptInFlight.current || result || checking || !current) return false;
     const c = new Chess(current.fen);
     let m;
     try {
@@ -98,6 +100,8 @@ function Puzzles() {
     } catch {
       return false;
     }
+    attemptInFlight.current = true;
+    try {
     setFen(c.fen());
     setSelected(null);
     let ok = m.from + m.to === current.best_uci.slice(0, 4);
@@ -112,7 +116,7 @@ function Puzzles() {
     }
     const r = ok ? "solved" : "failed";
     setResult(r);
-    await supabase
+    const { error } = await supabase
       .from("puzzles")
       .update({
         status: r,
@@ -122,7 +126,10 @@ function Puzzles() {
         last_attempt_at: new Date().toISOString(),
       })
       .eq("id", current.id);
+    if (error) throw new Error("Puzzle save failed");
     return true;
+    } catch { toast.error("Couldn't save your puzzle attempt. Try again."); setResult(null); setFen(current.fen); return false; }
+    finally { attemptInFlight.current = false; setChecking(false); }
   }
 
   function next() {

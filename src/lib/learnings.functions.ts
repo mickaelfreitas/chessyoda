@@ -28,8 +28,10 @@ export const generateLearnings = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: claimed, error: claimError } = await supabaseAdmin.rpc("claim_game_learnings", { p_game_id: data.gameId, p_user_id: context.userId });
     if (claimError || !claimed) return { text: null, status: claimError ? 500 : 202 };
+    const { data: lease } = await supabaseAdmin.from("game_learnings").select("claim_token").eq("game_id", data.gameId).eq("user_id", context.userId).single();
+    if (!lease) return { text: null, status: 500 };
     const fail = async (status: number) => {
-      await supabaseAdmin.from("game_learnings").update({ status: "failed", error_status: status, updated_at: new Date().toISOString() }).eq("game_id", data.gameId).eq("user_id", context.userId);
+      await supabaseAdmin.from("game_learnings").update({ status: "failed", error_status: status, updated_at: new Date().toISOString() }).eq("game_id", data.gameId).eq("user_id", context.userId).eq("claim_token", lease.claim_token);
       return { text: null, status };
     };
     try {
@@ -54,7 +56,7 @@ export const generateLearnings = createServerFn({ method: "POST" })
       if (body.stop_reason === "refusal") return fail(403);
       const text = completeExplanation((body.content ?? []).filter((b) => b.type === "text").map((b) => b.text ?? "").join(""), body.stop_reason);
       if (!text || text.length > 4000) { logExplanationStep("response parsing"); return fail(502); }
-      const { error: writeError } = await supabaseAdmin.from("game_learnings").update({ status: "completed", content: text, updated_at: new Date().toISOString(), error_status: null }).eq("game_id", data.gameId).eq("user_id", context.userId);
+      const { error: writeError } = await supabaseAdmin.from("game_learnings").update({ status: "completed", content: text, updated_at: new Date().toISOString(), error_status: null }).eq("game_id", data.gameId).eq("user_id", context.userId).eq("claim_token", lease.claim_token);
       if (writeError) return fail(500);
       return { text, status: 200 };
     } catch { logExplanationStep("unexpected error"); return fail(500); }

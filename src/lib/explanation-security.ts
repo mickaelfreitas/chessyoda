@@ -34,6 +34,8 @@ export function validateExplanationInput(value: unknown): ExplanationInput | nul
 
 export function allowedExplanationOrigin(origin: string | null, development = false): boolean {
   return origin === "https://chessyoda.com" ||
+    origin === "https://www.chessyoda.com" ||
+    origin === "https://chess-yoda-coach.lovable.app" ||
     origin === "https://id-preview--148f2dc3-6131-4c13-b3db-09bd09d28f7d.lovable.app" ||
     (development && origin === "http://localhost:8080");
 }

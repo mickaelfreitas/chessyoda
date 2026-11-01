@@ -53,7 +53,7 @@ export async function analyzeSkills(engine: Engine, records: MoveRecord[]) {
   return output;
 }
 export type SkillGame = { id: string; created_at: string; result: string | null; player_color: string; moves: MoveRecord[]; skills_analyzed: boolean; hints_used?: number };
-export type SkillPuzzle = { game_id: string | null; first_try_success: boolean | null; last_attempt_at: string | null; created_at: string };
+export type SkillPuzzle = { game_id: string | null; first_try_success: boolean | null; first_attempt_at?: string | null; last_attempt_at: string | null; created_at: string };
 export function skillScores(games: SkillGame[], puzzles: SkillPuzzle[], cutoff = Date.now()) {
   const ordered = games.filter((g) => Date.parse(g.created_at) <= cutoff).sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
   const evidence: Record<SkillAxis, { success: number; failure: number; count: number }> = Object.fromEntries(SKILL_AXES.map((a) => [a, { success: 0, failure: 0, count: 0 }])) as Record<SkillAxis, { success: number; failure: number; count: number }>;
@@ -68,8 +68,8 @@ export function skillScores(games: SkillGame[], puzzles: SkillPuzzle[], cutoff =
     const entered = mine.find((m) => radarEndgame(m.fenBefore));
     if (entered && entered.evalBefore * (entered.color === "w" ? 1 : -1) >= 300) add("Endgames", game.result === (game.player_color === "white" ? "1-0" : "0-1"), age);
   });
-  for (const p of puzzles) if (p.first_try_success !== null && p.last_attempt_at && Date.parse(p.last_attempt_at) <= cutoff) {
-    const after = ordered.filter((g) => Date.parse(g.created_at) > Date.parse(p.last_attempt_at ?? p.created_at)).length;
+  for (const p of puzzles) if (p.first_try_success !== null && (p.first_attempt_at ?? p.last_attempt_at) && Date.parse(p.first_attempt_at ?? p.last_attempt_at ?? "") <= cutoff) {
+    const after = ordered.filter((g) => Date.parse(g.created_at) > Date.parse(p.first_attempt_at ?? p.last_attempt_at ?? p.created_at)).length;
     add("Tactics", p.first_try_success, after);
   }
   return SKILL_AXES.map((axis) => { const e = evidence[axis]; const a = 2 + e.success; const b = 2 + e.failure;
