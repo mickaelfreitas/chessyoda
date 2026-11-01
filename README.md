@@ -30,16 +30,20 @@ I wanted to self improve faster in chess. Existing tools show you the engine’s
 
 ## Tech stack
 
-React + TypeScript · Supabase (Postgres with row-level security, auth, server functions) · Stockfish (WASM) · chess.js · Claude Haiku 5.5 · built with [Lovable](https://lovable.dev)
+React + TypeScript · TanStack Start · Postgres with row-level security · Stockfish (WASM) · chess.js · Claude Haiku 5.5
 
 ## Run locally
 
 ```bash
-git clone https://github.com/[your-username]/chessyoda.git
+git clone https://github.com/mickaelfreitas/chessyoda.git
 cd chessyoda
 cp .env.example .env   # add your Supabase URL and anon key
 npm install
 npm run dev
 ```
 
-The explanation function needs an `ANTHROPIC_API_KEY` secret in your Supabase project.
+The explanation server function needs `ANTHROPIC_API_KEY` in server-only runtime secret storage. See `.env.example` for the required public configuration and server-only variables; never expose private keys through `VITE_` variables.
+
+## License and credits
+
+Chess Yoda is licensed under [GPL-3.0](LICENSE). [Stockfish](https://stockfishchess.org/) is also distributed under GPL-3.0; its browser engine is based on [Stockfish.js](https://github.com/nmrugg/stockfish.js). Chess rules are provided by [chess.js](https://github.com/jhlywa/chess.js).
