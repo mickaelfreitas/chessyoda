@@ -16,7 +16,9 @@ describe("secured game learnings", () => {
     if (!mocks.handler) throw new Error("Missing handler");
     const result = await mocks.handler({ data: { gameId: mocks.game.id }, context: context() });
     expect(mocks.rpc).toHaveBeenCalledExactlyOnceWith("claim_game_learnings", { p_game_id: mocks.game.id, p_user_id: "owner" });
-    expect(JSON.parse(mocks.fetch.mock.calls[0][1].body)).toMatchObject({ model: "claude-haiku-5-5", max_tokens: 500, thinking: { type: "disabled" } });
+    const call = mocks.fetch.mock.calls[0];
+    if (!call) throw new Error("Expected learning request");
+    expect(JSON.parse(call[1].body)).toMatchObject({ model: "claude-haiku-5-5", max_tokens: 500, thinking: { type: "disabled" } });
     expect(result.text).toBe("- Practice checking threats.");
   });
   it("returns stored learnings without a second generation", async () => {
