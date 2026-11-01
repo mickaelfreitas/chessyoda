@@ -45,12 +45,12 @@ export const explainMistake = createServerFn({ method: "POST" })
       });
       if (quotaError) { logExplanationStep("daily limit"); return fail(500, "Daily limit check failed"); }
       if (!allowed) { logExplanationStep("daily limit"); return fail(429, "Daily limit reached", "Your daily explanation allowance is used up. Try again tomorrow."); }
-      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify({ ...data, model: EXPLANATION_MODEL, version: 4 })));
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify({ ...data, model: EXPLANATION_MODEL, version: 5 })));
       const cacheKey = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
       const { data: cached, error: cacheError } = await context.supabase.from("explanation_cache").select("explanation").eq("cache_key", cacheKey).maybeSingle();
       if (cacheError) { logExplanationStep("cache lookup"); return fail(500, "Cache lookup failed"); }
       if (cached) return { text: cached.explanation, error: null, status: 200 };
-      const prompt = `Engine-verified facts (not a position to analyze):\n${JSON.stringify(data)}`;
+      const prompt = `Engine-verified facts (not a position to analyze):\n${JSON.stringify(data)}\nEach continuation is a separate alternative, not part of the played game. Use the side and captured piece explicitly listed for each move. A capture is not necessarily a net material win. Do not invent attacked squares, defended pieces, pins, forks, pawn structure, bishop-pair claims or material advantages absent from the facts. Explain the measured evaluation improvement when a deeper strategic reason is not supplied.`;
       let res: Response;
       try {
         res = await fetch("https://api.anthropic.com/v1/messages", {
