@@ -1,93 +1,45 @@
 # Chess Yoda
 
-A chess training app for players working toward 1800 Elo: play opponents from
-800–2400, use instant rule-based coaching, review mistakes, train personalized
-puzzles, import Lichess/Chess.com games, and track progress.
+**An AI chess coach that teaches you *why* you keep missing moves, not just what the best move was.**
 
-Built with React, TanStack Start, chess.js, react-chessboard, and Lovable Cloud.
-Stockfish runs locally in two browser workers; live coaching does not call AI.
+[chessyoda.com](https://chessyoda.com)
+
+![Chess Yoda](docs/hero.gif)
+
+## Why I built it
+
+I wanted to climb from 1400 to 1800. Existing tools show you the engine's best move after the game, but nothing explains why you keep missing it or spots the patterns in your mistakes. So I built the coach I wanted.
+
+## Features
+
+- **Play Stockfish at your level:** 800 to 2400 Elo, with a coach you can switch on or off.
+- **Live coaching:** threat checks after every opponent move, blunder warnings with optional take-backs, and progressive hints (nudge → point → reveal).
+- **"Why?" explanations:** every warning comes with a short, level-appropriate explanation.
+- **Your mistakes become your training:** every mistake from your games, played here or imported from Lichess and Chess.com, becomes a personal puzzle until you solve it.
+- **Key learnings** after every game, saved and searchable.
+- **Bayesian progress forecast** with an honest uncertainty band.
+- **Skills radar** across six areas: opening play, tactics, positional play, endgames, defense and consistency.
+
+## How it works
+
+**The engine decides, the AI explains.** LLMs are unreliable at chess, so all chess judgment comes from Stockfish, running in the browser via WebAssembly. Material outcomes and severity are computed in code. The language model (Claude Haiku 5.5) only turns those verified facts into a short explanation, and it never analyzes positions itself.
+
+**Bayesian forecasting.** Current rating is estimated with Glicko-2 from rated games (no take-backs, no hints). A small Bayesian trend model (rating = r₀ + slope × t, Elo likelihood, grid-approximated posterior) forecasts the next 8 weeks as an 80% credible band and gives the probability that you're actually improving.
+
+**Skills radar.** Each axis is a success rate with a Beta posterior, updated from engine-tagged positions in your games and puzzles, weighted toward recent games. Axes with too little evidence say so instead of guessing.
+
+## Tech stack
+
+React + TypeScript · Supabase (Postgres with row-level security, auth, server functions) · Stockfish (WASM) · chess.js · Claude Haiku 5.5 · built with [Lovable](https://lovable.dev)
 
 ## Run locally
 
-Install Bun, clone this repository, then:
-
-```sh
-bun install
-cp .env.example .env.local
-# Fill .env.local privately; never commit it.
-bun run dev
+```bash
+git clone https://github.com/[your-username]/chessyoda.git
+cd chessyoda
+cp .env.example .env   # add your Supabase URL and anon key
+npm install
+npm run dev
 ```
 
-Use a development backend with email/password auth and apply the checked-in SQL
-migrations using your backend's migration tooling. The repository contains no
-real private credentials. The Lovable-managed `.env` may remain tracked: before
-publishing, remove it from tracking and ensure the ignore rules below are installed.
-Ignoring files alone does not remove previously committed copies.
-
-Required ignore rules (the editor currently protects `.gitignore`):
-
-```gitignore
-.env
-.env.*
-**/.env
-**/.env.*
-!.env.example
-.dev.vars
-.dev.vars.*
-```
-
-## Environment variables
-
-| Variable | Purpose | Visibility |
-| --- | --- | --- |
-| `VITE_SUPABASE_URL` | Public backend URL | Browser |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Public anon/publishable key | Browser |
-| `VITE_SUPABASE_PROJECT_ID` | Public project identifier | Browser |
-| `SUPABASE_URL` | Backend URL for server requests | Server |
-| `SUPABASE_PUBLISHABLE_KEY` | Public key for authenticated server queries | Server |
-| `SUPABASE_SERVICE_ROLE_KEY` | Atomic quota and generated cache writes | Server secret only |
-| `ANTHROPIC_API_KEY` | Anthropic mistake explanations | Server secret only |
-
-In production, store private values in encrypted runtime secrets, never in source,
-browser variables, or committed environment files. Lovable Cloud supplies its managed
-server credentials; they are not manually exported from Cloud.
-
-## Explanation security
-
-The existing `explainMistake` TanStack server function validates JWTs, origin,
-FEN, legal SAN moves/continuations, rating 0–3500, and input lengths. There is no
-`explain-move` Edge Function in this project. Same-origin RPC needs no cross-origin
-CORS grant; origins are restricted to chessyoda.com and the exact Lovable preview
-origin, with localhost:8080 permitted only in development.
-
-`DAILY_EXPLANATION_LIMIT` is defined once in `src/lib/explain.functions.ts`.
-An atomic, service-only database operation consumes one of 300 requests per UTC
-day before cache reads or model calls; cache hits and upstream failures count to
-prevent retries from bypassing the cap. Usage is owner-readable and cannot be
-changed by clients. Cached generated explanations are signed-in-readable only.
-
-The requested model remains `claude-haiku-5-5`, with `max_tokens: 200`; upstream
-failures return a generic error rather than silently substituting another model.
-
-## Tests
-
-```sh
-bun run test
-```
-
-## License and credits
-
-This repository is licensed under **GPL-3.0**; see [LICENSE](LICENSE).
-Stockfish is GPL-3.0 software by the Stockfish developers. The bundled
-Stockfish.js 19 lite single-threaded build is from
-[nmrugg/stockfish.js](https://github.com/nmrugg/stockfish.js) (npm `stockfish` 19.0.1).
-Corresponding sources and build scripts are available in the upstream
-[v19.0.1 source release](https://github.com/nmrugg/stockfish.js/tree/v19.0.1)
-and [official Stockfish](https://github.com/official-stockfish/Stockfish).
-Redistributors must preserve notices and provide corresponding source in accordance
-with GPL-3.0; an upstream link alone may not fulfill every redistribution scenario.
-chess.js and react-chessboard retain their respective upstream licenses.
-
-## Vulnerability reports
-
-Report privately by email as described in [SECURITY.md](SECURITY.md), not public issues.
+The explanation function needs an `ANTHROPIC_API_KEY` secret in your Supabase project.
