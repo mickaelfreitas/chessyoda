@@ -13,6 +13,10 @@ export function coachingFacts(record: MoveRecord, rating: number, replyLine = re
   const replies = new Chess(record.fenAfter);
   const verifiedReplies = replyLine.slice(0, 4).map((san) => replies.move(san, { strict: true }));
   const reply = verifiedReplies[0];
+  const opponentColor = record.color === "w" ? "b" : "w";
+  const values: Record<PieceSymbol, number> = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
+  const capturedByOpponent = verifiedReplies.filter((m) => m.color === opponentColor && m.captured).map((m) => names[m.captured ?? "p"]);
+  const netReplyMaterial = verifiedReplies.reduce((net, m) => net + (m.captured ? values[m.captured] * (m.color === opponentColor ? 1 : -1) : 0) + (m.promotion ? (values[m.promotion] - 1) * (m.color === opponentColor ? 1 : -1) : 0), 0);
   const sign = record.color === "w" ? 1 : -1;
   return {
     rating, sideToMove: played.color === "w" ? "White" : "Black", moveNumber: number,
@@ -22,6 +26,7 @@ export function coachingFacts(record: MoveRecord, rating: number, replyLine = re
     bestMove: mainLine[0] ?? null, mainLine,
     mainLineFacts: bestMoves.map((m) => ({ san: m.san, side: m.color === "w" ? "White" : "Black", piece: names[m.piece], from: m.from, to: m.to, captured: m.captured ? names[m.captured] : null, check: m.san.includes("+"), checkmate: m.san.includes("#") })),
     opponentReply: reply?.san ?? null, opponentLine: verifiedReplies.map((m) => m.san),
+    replyLineMaterialBalance: { pawnsGainedByOpponent: netReplyMaterial, capturedByOpponent, scope: "Only the supplied engine continuation; not a claim about longer lines" },
     opponentLineFacts: verifiedReplies.map((m) => ({ san: m.san, side: m.color === "w" ? "White" : "Black", captured: m.captured ? names[m.captured] : null, checkmate: m.san.includes("#") })),
     opponentGain: reply?.san.includes("#") ? "checkmate" : record.mateAfter !== null && record.mateAfter * sign < 0 ? `forced mate in ${Math.abs(record.mateAfter)}` : reply?.captured ? `captures a ${names[reply.captured]}; net material gain is not established by a capture alone` : record.evalAfter * sign <= -200 ? "winning position according to engine evaluation" : "positional improvement; no verified material win or forced mate",
     mistakeType: record.mistakeType ?? null,

@@ -12,6 +12,7 @@ export function KeyLearnings({ gameId }: { gameId: string }) {
   const [text, setText] = useState<string | null>(null);
   const [status, setStatus] = useState<number>(202);
   const [busy, setBusy] = useState(false);
+  const [poll, setPoll] = useState(0);
   async function run() {
     setBusy(true);
     try {
@@ -30,10 +31,10 @@ export function KeyLearnings({ gameId }: { gameId: string }) {
       const { data } = await supabase.from("game_learnings").select("status,content,error_status").eq("game_id", gameId).maybeSingle();
       if (data?.status === "completed") { setText(data.content); setStatus(200); }
       else if (data?.status === "failed") setStatus(data.error_status ?? 500);
-      else setStatus(500);
+      else setPoll((n) => n + 1);
     }, 3000);
     return () => clearTimeout(timer);
-  }, [gameId, busy, status]);
+  }, [gameId, busy, status, poll]);
   return <section className="space-y-3 border-t border-border py-4" aria-label="Key learnings">
     <h2 className="text-sm font-semibold">Key learnings</h2>
     {busy ? <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Preparing learnings…</p> : text ? <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed">{text.split("\n").filter((s) => s.trim()).map((line, i) => <li key={i}>{line.replace(/^\s*(?:[-*•]|\d+[.)])\s*/, "")}</li>)}</ul> : <div className="flex items-center gap-3"><span className="text-sm text-muted-foreground">Learnings unavailable</span><Button size="sm" variant="outline" onClick={run} disabled={[403, 404].includes(status)}>Retry</Button></div>}

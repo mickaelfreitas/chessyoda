@@ -44,7 +44,7 @@ export function SkillsRadar({ games, puzzles }: { games: SkillGame[]; puzzles: S
         <PolarAngleAxis dataKey="axis" tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
         <Radar name="Upper 80% bound" dataKey="upper" stroke="var(--primary)" strokeOpacity={0.35} strokeDasharray="4 4" fill="none" />
         <Radar name="Lower 80% bound" dataKey="lower" stroke="var(--primary)" strokeOpacity={0.35} strokeDasharray="4 4" fill="none" />
-        <Radar name="Score" dataKey="value" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.18} animationDuration={600} dot={{ r: 3, fill: "var(--muted-foreground)" }} />
+        <Radar name="Score" dataKey="value" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.18} animationDuration={600} isAnimationActive={!window.matchMedia("(prefers-reduced-motion: reduce)").matches} dot={({ cx, cy, payload }: { cx?: number; cy?: number; payload?: typeof data[number] }) => <circle cx={cx} cy={cy} r={3} fill={payload?.score === null ? "var(--muted-foreground)" : "var(--primary)"} />} />
         <Tooltip content={({ active, payload }) => {
           const s = payload?.[0]?.payload as typeof data[number] | undefined;
           if (!active || !s) return null;

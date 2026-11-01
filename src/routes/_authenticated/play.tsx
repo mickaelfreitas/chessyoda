@@ -305,7 +305,7 @@ function Game({ settings, onNew, id, initial }: { settings: Settings; onNew: () 
         gain = ((ta.lines[0]?.cp ?? 0) - (after.lines[0]?.cp ?? 0)) * sign;
       }
       const rec = recordsRef.current.at(-1);
-      if (rec) setThreat({ t: describeThreat(c.fen(), player, tMove, gain), revealed: false, rec });
+      if (rec) setThreat({ t: describeThreat(c.fen(), player, tMove, gain), revealed: false, rec, gain });
     }
     setBusy(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -390,6 +390,7 @@ function Game({ settings, onNew, id, initial }: { settings: Settings; onNew: () 
     }
     clockHistory.current.push(beforeClock);
     const assisted = !!hint || !!threat?.revealed;
+    const threatAnswer = threat?.answerCorrect;
     setFen(c.fen());
     setSelected(null);
     setThreat(null);
@@ -410,6 +411,7 @@ function Game({ settings, onNew, id, initial }: { settings: Settings; onNew: () 
       byPlayer: true,
     });
     rec.hintUsed = assisted;
+    if (threatAnswer !== undefined) rec.threatAnswer = threatAnswer;
     const loss = evalLoss(rec.evalBefore, rec.evalAfter, player);
     if (coach !== "off" && loss > SAFETY_NET_THRESHOLD && !c.isCheckmate()) {
       setPending({ rec });
@@ -572,6 +574,8 @@ function Game({ settings, onNew, id, initial }: { settings: Settings; onNew: () 
             {threat && (
               <div className="rounded-lg bg-secondary p-3">
                 <p className="text-sm font-semibold">What is your opponent threatening?</p>
+                {!threat.revealed && threat.gain !== undefined && threat.answerCorrect === undefined && <div className="mt-2 flex gap-2"><Button size="sm" variant="outline" onClick={() => setThreat({ ...threat, answerCorrect: (threat.gain ?? 0) >= 150 })}>A threat</Button><Button size="sm" variant="outline" onClick={() => setThreat({ ...threat, answerCorrect: (threat.gain ?? 0) < 150 })}>No immediate threat</Button></div>}
+                {threat.answerCorrect !== undefined && <p className="mt-2 text-xs text-muted-foreground">{threat.answerCorrect ? "Correct" : "Not quite"}</p>}
                 {threat.revealed ? (
                   <p className="mt-1 text-sm">{threat.t.text}</p>
                 ) : (
