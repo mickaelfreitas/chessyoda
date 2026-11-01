@@ -10,7 +10,7 @@ export const explainMistake = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(validateExplanationInput)
   .handler(async ({ data, context }) => {
-    const failure = { text: null, error: "The coach couldn't answer right now." };
+    const failure: { text: null; error: string; status?: number } = { text: null, error: "Couldn't load the explanation. Try again." };
     if (!allowedExplanationOrigin(getRequest().headers.get("origin"), import.meta.env.DEV)) return failure;
     if (!data) return { text: null, error: "Please provide a valid position, move, line, and rating." };
     const apiKey = process.env["ANTHROPIC_API_KEY"];
@@ -28,7 +28,7 @@ export const explainMistake = createServerFn({ method: "POST" })
     const cacheKey = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
     const { data: cached, error: cacheError } = await context.supabase.from("explanation_cache").select("explanation").eq("cache_key", cacheKey).maybeSingle();
     if (cacheError) return failure;
-    if (cached) return { text: cached.explanation, error: null };
+    if (cached) return { text: cached.explanation, error: null, status: 200 };
     const prompt = `Here is the position (FEN): ${data.fen}
 Move played: ${data.played}
 Stockfish's best line: ${data.bestLine.join(" ")}
@@ -49,13 +49,13 @@ Explain the mistake to a ${data.rating}-level player in 2–3 sentences. Only re
       }),
       signal: AbortSignal.timeout(30000),
     });
-    if (res.status === 429) return { text: null, error: "Too many requests — try again in a moment." };
-    if (!res.ok) return failure;
+    if (res.status === 429) return { ...failure, status: res.status };
+    if (!res.ok) return { ...failure, status: res.status };
     const response = await res.json() as { content?: { type?: string; text?: string }[] };
     const text = (response.content ?? []).filter((part) => part.type === "text").map((part) => part.text ?? "").join("").trim();
-    if (!text || text.length > 4000) return failure;
+    if (!text || text.length > 4000) return { ...failure, status: res.status };
     const { error: writeError } = await supabaseAdmin.from("explanation_cache").upsert({ cache_key: cacheKey, explanation: text }, { onConflict: "cache_key", ignoreDuplicates: true });
     if (writeError) return failure;
-    return { text, error: null };
+    return { text, error: null, status: res.status };
     } catch { return failure; }
   });

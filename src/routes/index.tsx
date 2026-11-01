@@ -4,9 +4,10 @@ import { ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ParticleKing from "@/components/ParticleKing";
 import { LandingBoard } from "@/components/LandingBoard";
+import { LandingDemos } from "@/components/LandingDemos";
 
 export const Route = createFileRoute("/")({
-  head: () => ({ meta: [
+  head: () => ({ links: [{ rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Saira:wdth,wght@75..125,300..800&display=swap" }], meta: [
     { title: "Chess Yoda — improve your chess force" },
     { name: "description", content: "Train with an engine from 800 to 2400 Elo, catch blunders, and turn your mistakes into tomorrow’s puzzles." },
     { property: "og:title", content: "Chess Yoda — improve your chess force" },
@@ -66,6 +67,7 @@ function Index() {
         ["3", "Reveal", "An arrow shows the engine’s move, g6, and a short explanation of why it works."],
       ].map(([n, title, text]) => <div className="landing-step" key={n}><span>{n}</span><h3>{title}</h3><p>{text}</p></div>)}</div></div></section>
       <section className="landing-section" id="puzzles"><div className="landing-wrap landing-columns"><div className="landing-stack"><h2>Lose on Tuesday.<br />Train the fix on Wednesday.</h2><p className="landing-body">Every mistake from your games, played here or imported from Lichess and Chess.com, comes back as a puzzle. Miss it, and it returns until you don’t.</p><Button asChild variant="outline" className="landing-button landing-self-start"><Link to="/import">Import my games<ArrowUpRight aria-hidden="true" /></Link></Button></div><div className="landing-queue"><div className="landing-queue-head"><span>Today’s queue</span><span>Sample</span></div>{samples.map(([title, source, status]) => <div className="landing-queue-row" key={title}><div><span className="landing-queue-title">{title}</span><span className="landing-queue-source">{source}</span></div><span className={`landing-badge ${status === "Solved" ? "is-solved" : status === "Missed twice" ? "is-missed" : ""}`}>{status}</span></div>)}</div></div></section>
+      <LandingDemos />
       <section className="landing-section landing-cta"><div className="landing-wrap landing-stack"><h2>The board is set</h2><p className="landing-lead">Free to play. Your games, puzzles and progress are saved to your account.</p><Button asChild className="landing-button landing-self-start"><Link to="/play">Start a game</Link></Button></div></section>
     </main>
     <footer className="landing-footer"><div className="landing-wrap"><span>© 2026 chessyoda.com</span></div></footer>
