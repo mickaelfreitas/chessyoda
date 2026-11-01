@@ -1,7 +1,7 @@
 import { Chess, validateFen } from "chess.js";
 
 export const EXPLANATION_MODEL = "claude-haiku-5-5";
-export const EXPLANATION_MAX_TOKENS = 200;
+export const EXPLANATION_MAX_TOKENS = 300;
 export type ExplanationInput = { fen: string; played: string; bestLine: string[]; rating: number };
 
 export type ExplanationInvalidField = "body" | "fen" | "played" | "bestLine" | "rating";
