@@ -1,4 +1,7 @@
 # Requested updates
+- [ ] Improve Why: 300 tokens, complete-sentence truncation, verified chess/engine facts; test five saved mistakes.
+- [ ] Implement Part 2 key learnings with 500 tokens and factual inputs.
+- [ ] Implement Part 3 skills radar using the supplied brief.
 - [ ] Verify Why signed-in end-to-end: own-key Anthropic test returned HTTP 200, parsing/request/error tests pass and Retry added; requester account session unavailable. Key learnings remain gated on this check.
 - [x] Add supplied forecast and skills landing sections between Puzzles and final CTA; sample copy, animated charts and all three toggle states verified, with no mobile overflow or runtime errors.
 - [x] Refine hero to a centered face/content stack left and mockup-sized king right; verified shared center, desktop alignment, and mobile order at 320–1440px without overflow or runtime errors.
