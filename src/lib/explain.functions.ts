@@ -66,6 +66,8 @@ Explain the mistake to a ${data.rating}-level player in 2–3 sentences. Only re
           body: JSON.stringify({
             model: EXPLANATION_MODEL,
             max_tokens: EXPLANATION_MAX_TOKENS,
+            // Without this the model can spend the whole 200-token budget thinking and return no text.
+            thinking: { type: "disabled" },
             system: "You are Chess Yoda, a calm, concise chess coach. Plain text, no markdown. Use only the supplied legal moves.",
             messages: [{ role: "user", content: prompt }],
           }),
