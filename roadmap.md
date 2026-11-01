@@ -1,5 +1,5 @@
 # Requested updates
-- [x] Clean cosmetic platform references in README, agent guidance and build comments; rename the application-owned diagnostic wrapper and package to chessyoda; preserve required .lovable metadata/integrations. Landing/sign-in navigation, 15 tests and build passed; history untouched.
+- [x] Clean cosmetic platform references in README and build comments; rename the application-owned diagnostic wrapper and package to chessyoda; preserve required .lovable metadata/integrations. Platform sync guidance is automatically restored; lockfile metadata is protected. Landing/sign-in navigation, 15 tests and build passed; history untouched.
 - [x] Compute replayed-line material outcomes, capture labels and verbal swing bands; cap Why at three sentences; material, threshold, promotion, mate and output tests pass.
 - [x] Re-run the same five saved mistakes signed-in and compare old/new explanations; all five displayed answers have three sentences, with net outcomes distinguishing trades from gains.
 - [x] Improve Why: 300 tokens, complete-sentence truncation, verified chess/engine facts; five saved mistakes tested signed-in.
