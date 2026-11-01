@@ -3,7 +3,7 @@ import { Chess } from "chess.js";
 const mocks = vi.hoisted(() => ({ rpc: vi.fn(), fetch: vi.fn(), cache: vi.fn(), upsert: vi.fn(), handler: null as null | ((args: any) => Promise<any>) }));
 vi.mock("@tanstack/react-start", () => {
   const builder = { middleware: () => builder, inputValidator: () => builder, handler: (handler: any) => { mocks.handler = handler; return handler; } };
-  return { createServerFn: () => builder };
+  return { createServerFn: () => builder, createMiddleware: () => ({ server: (fn: any) => fn }) };
 });
 vi.mock("@tanstack/react-start/server", () => ({ getRequest: () => new Request("https://chessyoda.com", { headers: { origin: "https://chessyoda.com" } }) }));
 vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
@@ -43,7 +43,7 @@ describe("server explanation quota", () => {
     expect(url).toBe("https://api.anthropic.com/v1/messages");
     expect(request.headers["anthropic-version"]).toBe("2023-06-01");
     expect(request.headers["x-api-key"]).toBe("test-only-not-a-credential");
-    expect(JSON.parse(request.body)).toMatchObject({ model: "claude-haiku-5-5", max_tokens: 200 });
+    expect(JSON.parse(request.body)).toMatchObject({ model: "claude-haiku-5-5", max_tokens: 200, thinking: { type: "disabled" } });
     expect(response).toMatchObject({ text: "Control the center.", error: null, status: 200 });
   });
   it("returns upstream status without exposing provider internals", async () => {

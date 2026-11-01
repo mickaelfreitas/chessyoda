@@ -6,7 +6,7 @@ vi.mock("@tanstack/react-start", () => {
     inputValidator: () => builder,
     handler: () => vi.fn(),
   };
-  return { createServerFn: () => builder };
+  return { createServerFn: () => builder, createMiddleware: () => ({ server: (fn: unknown) => fn }) };
 });
 vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
 
