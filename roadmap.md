@@ -1,5 +1,5 @@
 # Requested updates
-- [ ] Clean cosmetic platform references and rename the application-owned diagnostic wrapper; preserve required metadata/integrations and verify the app.
+- [x] Clean cosmetic platform references in README, agent guidance and build comments; rename the application-owned diagnostic wrapper and package to chessyoda; preserve required .lovable metadata/integrations. Landing/sign-in navigation, 15 tests and build passed; history untouched.
 - [x] Compute replayed-line material outcomes, capture labels and verbal swing bands; cap Why at three sentences; material, threshold, promotion, mate and output tests pass.
 - [x] Re-run the same five saved mistakes signed-in and compare old/new explanations; all five displayed answers have three sentences, with net outcomes distinguishing trades from gains.
 - [x] Improve Why: 300 tokens, complete-sentence truncation, verified chess/engine facts; five saved mistakes tested signed-in.
@@ -21,5 +21,5 @@
 - [x] Create the black-background Yoda particle favicon.
 - [x] Store DAILY_EXPLANATION_LIMIT = 300 in the existing server function; test passed.
 - [x] Security pass: audited secrets/history; secured owner RLS and cache/usage grants, atomic daily quota, validated Anthropic explanations and exact origins, generic logs/errors; patched dependencies; added GPL/README/SECURITY. 21 tests and build pass; presentation unchanged.
-- [ ] Ignore all environment files and untrack .env: blocked because .gitignore is read-only and Git state changes are managed externally.
+- [ ] Ignore all environment files and untrack .env: .gitignore cleanup was retried during repository branding cleanup and remains protected/read-only; Git state changes are managed externally.
 - [x] Verify authenticated Anthropic explanation flow: model and key preserved; five saved mistakes and game learnings verified signed-in.
