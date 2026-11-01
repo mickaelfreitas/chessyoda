@@ -1,5 +1,5 @@
 import { Chess } from "chess.js";
-import { jStat } from "jstat";
+import jStatPackage from "jstat";
 import { evalLoss, nullMoveFen, pvToSan } from "./coach";
 import type { Analysis, Engine } from "./engine";
 import type { MoveRecord } from "./types";
@@ -73,6 +73,6 @@ export function skillScores(games: SkillGame[], puzzles: SkillPuzzle[], cutoff =
     add("Tactics", p.first_try_success, after);
   }
   return SKILL_AXES.map((axis) => { const e = evidence[axis]; const a = 2 + e.success; const b = 2 + e.failure;
-    return { axis, count: e.count, score: e.count >= 15 ? a / (a + b) * 100 : null, low: jStat.beta.inv(0.1, a, b) * 100, high: jStat.beta.inv(0.9, a, b) * 100 };
+    return { axis, count: e.count, score: e.count >= 15 ? a / (a + b) * 100 : null, low: jStatPackage.jStat.beta.inv(0.1, a, b) * 100, high: jStatPackage.jStat.beta.inv(0.9, a, b) * 100 };
   });
 }
