@@ -34,7 +34,7 @@ describe("server explanation quota", () => {
     mocks.rpc.mockResolvedValue({ data: true, error: null });
     mocks.cache.mockResolvedValue({ data: null, error: null });
     mocks.upsert.mockResolvedValue({ error: null });
-    mocks.fetch.mockResolvedValue(new Response(JSON.stringify({ content: [{ type: "text", text: "Control the center." }] }), { status: 200 }));
+    mocks.fetch.mockResolvedValue(new Response(JSON.stringify({ content: [{ type: "text", text: "Control the center. Develop safely. Watch the reply. Extra sentence." }] }), { status: 200 }));
     if (!mocks.handler) throw new Error("Missing handler");
     const context = { userId: "caller-id", supabase: { from: () => ({ select: () => ({ eq: () => ({ maybeSingle: mocks.cache }) }) }) } };
     const response = await mocks.handler({ data, context });
@@ -46,8 +46,11 @@ describe("server explanation quota", () => {
     expect(request.headers["x-api-key"]).toBe("test-only-not-a-credential");
     expect(JSON.parse(request.body)).toMatchObject({ model: "claude-haiku-5-5", max_tokens: 300, thinking: { type: "disabled" } });
     expect(JSON.parse(request.body).messages[0].content).not.toContain("fenBefore");
-    expect(JSON.parse(request.body).messages[0].content).toContain("evaluationBefore");
-    expect(response).toMatchObject({ text: "Control the center.", error: null, status: 200 });
+    expect(JSON.parse(request.body).messages[0].content).not.toContain("evaluationBefore");
+    expect(JSON.parse(request.body).messages[0].content).not.toContain("evaluationAfter");
+    expect(JSON.parse(request.body).messages[0].content).toContain("small inaccuracy");
+    expect(JSON.parse(request.body).messages[0].content).toContain("Net result of played line");
+    expect(response).toMatchObject({ text: "Control the center. Develop safely. Watch the reply.", error: null, status: 200 });
   });
   it("returns upstream status without exposing provider internals", async () => {
     mocks.rpc.mockResolvedValue({ data: true, error: null });
