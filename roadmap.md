@@ -1,6 +1,6 @@
 # Requested updates
-- [ ] Compute replayed-line material outcomes, capture labels and verbal swing bands; cap Why at three sentences and test rules.
-- [ ] Re-run the same five saved mistakes signed-in and compare old/new explanations.
+- [x] Compute replayed-line material outcomes, capture labels and verbal swing bands; cap Why at three sentences; material, threshold, promotion, mate and output tests pass.
+- [x] Re-run the same five saved mistakes signed-in and compare old/new explanations; all five displayed answers have three sentences, with net outcomes distinguishing trades from gains.
 - [x] Improve Why: 300 tokens, complete-sentence truncation, verified chess/engine facts; five saved mistakes tested signed-in.
 - [x] Implement Part 2 key learnings with 500 tokens and factual inputs; game-over and stored review verified.
 - [x] Implement Part 3 skills radar using the supplied brief; owner-scoped tags, Beta intervals, historical snapshot and puzzle categories.
