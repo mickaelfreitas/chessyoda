@@ -8,11 +8,11 @@ function inventory(chess: Chess, color: Color) {
   return pieces.map((piece) => chess.board().flat().filter((p) => p?.color === color && p.type === piece).length);
 }
 function material(chess: Chess, color: Color) {
-  return inventory(chess, color).reduce((sum, count, i) => sum + count * values[pieces[i]], 0);
+  return inventory(chess, color).reduce((sum, count, i) => sum + count * values[pieces[i] ?? "p"], 0);
 }
 function listPieces(counts: number[]) {
   const words = ["no", "a", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
-  return counts.flatMap((count, i) => count > 0 ? [`${words[count] ?? "several"} ${names[pieces[i]]}${count > 1 ? "s" : ""}`] : []).join(" and ");
+  return counts.flatMap((count, i) => count > 0 ? [`${words[count] ?? "several"} ${names[pieces[i] ?? "p"]}${count > 1 ? "s" : ""}`] : []).join(" and ");
 }
 export function evaluationSwingLabel(record: Pick<MoveRecord, "color" | "evalBefore" | "evalAfter" | "mateAfter">) {
   const sign = record.color === "w" ? 1 : -1;
@@ -31,8 +31,8 @@ export function lineMaterialFacts(fen: string, line: string[], player: Color) {
   const end = new Chess(fen);
   const moves = line.map((san) => end.move(san, { strict: true }));
   const opponent = player === "w" ? "b" : "w";
-  const lost = (color: Color) => inventory(start, color).map((count, i) => Math.max(0, count - inventory(end, color)[i]));
-  const added = (color: Color) => inventory(end, color).map((count, i) => Math.max(0, count - inventory(start, color)[i]));
+  const lost = (color: Color) => inventory(start, color).map((count, i) => Math.max(0, count - (inventory(end, color)[i] ?? 0)));
+  const added = (color: Color) => inventory(end, color).map((count, i) => Math.max(0, count - (inventory(start, color)[i] ?? 0)));
   const ownLost = listPieces(lost(player)); const opponentLost = listPieces(lost(opponent));
   const change = material(end, player) - material(end, opponent) - (material(start, player) - material(start, opponent));
   const captureValues = (color: Color) => moves.filter((m) => m.color === color && m.captured).reduce((sum, m) => sum + values[m.captured ?? "k"], 0);
@@ -51,7 +51,7 @@ export function lineMaterialFacts(fen: string, line: string[], player: Color) {
   if (end.isCheckmate()) outcome = end.turn() === player ? "Played move allows checkmate" : "You deliver checkmate";
   else if (change === 0) {
     const equalAtEnd = material(end, player) === material(end, opponent);
-    const traded = lost(player).flatMap((count, i) => count > 0 ? [names[pieces[i]]] : []);
+    const traded = lost(player).flatMap((count, i) => count > 0 ? [names[pieces[i] ?? "p"]] : []);
     outcome = `${equalAtEnd ? "material stays equal" : "material balance stays unchanged"}${traded.length ? ` (${traded.join(" and ")} trade)` : " (no net material gain)"}`;
   } else if (ownLost && opponentLost) outcome = change < 0 ? `you lose ${ownLost} for ${opponentLost}` : `you win ${opponentLost} for ${ownLost}`;
   else if (ownLost) outcome = `you lose ${ownLost}`;
@@ -60,7 +60,7 @@ export function lineMaterialFacts(fen: string, line: string[], player: Color) {
   const ownAdded = listPieces(added(player)); const opponentAdded = listPieces(added(opponent));
   if (ownAdded) outcome += `; your promotion adds ${ownAdded}`;
   if (opponentAdded) outcome += `; opponent promotion adds ${opponentAdded}`;
-  return { outcome, moves: moves.map((m) => ({ san: m.san, side: m.color === "w" ? "White" : "Black", piece: names[m.piece], from: m.from, to: m.to, captured: m.captured ? names[m.captured] : null, captureOutcome: labels.get(m) ?? null, promotion: m.promotion ? names[m.promotion] : null, check: m.isCheck(), checkmate: m.isCheckmate() })) };
+  return { outcome, moves: moves.map((m) => ({ san: m.san, side: m.color === "w" ? "White" : "Black", piece: names[m.piece], from: m.from, to: m.to, captured: m.captured ? names[m.captured] : null, captureOutcome: labels.get(m) ?? null, promotion: m.promotion ? names[m.promotion] : null, check: m.san.includes("+"), checkmate: m.san.includes("#") })) };
 }
 
 export function coachingFacts(record: MoveRecord, rating: number, replyLine = record.replyLine ?? []) {
