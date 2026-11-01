@@ -1,16 +1,19 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
 
-import { gamesQuery, profileQuery, puzzlesQuery } from "@/lib/queries";
+import { gamesQuery, profileQuery, puzzlesQuery, learningsQuery, skillGamesQuery } from "@/lib/queries";
 import { MISTAKE_TYPE_TEXT, type MistakeType } from "@/lib/coach";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { RatingForecast } from "@/components/RatingForecast";
 import { ratedResults, rollingBlunders } from "@/lib/rating-forecast";
+import { KeyLearnings } from "@/components/KeyLearnings";
+import { SkillsRadar } from "@/components/SkillsRadar";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/progress")({
   head: () => ({
@@ -28,6 +31,8 @@ export const Route = createFileRoute("/_authenticated/progress")({
       context.queryClient.ensureQueryData(gamesQuery),
       context.queryClient.ensureQueryData(puzzlesQuery),
       context.queryClient.ensureQueryData(profileQuery),
+      context.queryClient.ensureQueryData(learningsQuery),
+      context.queryClient.ensureQueryData(skillGamesQuery),
     ]);
   },
   component: ProgressPage,
@@ -57,6 +62,9 @@ function ProgressPage() {
   const { data: games } = useSuspenseQuery(gamesQuery);
   const { data: puzzles } = useSuspenseQuery(puzzlesQuery);
   const { data: profile } = useSuspenseQuery(profileQuery);
+  const { data: learnings } = useSuspenseQuery(learningsQuery);
+  const { data: skillGames } = useSuspenseQuery(skillGamesQuery);
+  const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
   const [name, setName] = useState(profile?.display_name ?? "");
   const [rating, setRating] = useState(String(profile?.rating ?? 1400));
@@ -92,7 +100,16 @@ function ProgressPage() {
   return (
     <div className="space-y-5">
       <h1 className="text-3xl font-bold">Progress</h1>
+      <Tabs defaultValue="overview">
+      <TabsList><TabsTrigger value="overview">Overview</TabsTrigger><TabsTrigger value="learnings">Learnings</TabsTrigger></TabsList>
+      <TabsContent value="learnings" className="space-y-4">
+        <Input aria-label="Search learnings" placeholder="Search learnings" value={search} onChange={(e) => setSearch(e.target.value)} />
+        {learnings.filter((l) => l.content?.toLowerCase().includes(search.toLowerCase())).map((l) => <article key={l.game_id} className="border-t border-border py-4"><Button asChild variant="link" className="px-0"><Link to="/review/$gameId" params={{ gameId: l.game_id }}>{new Date(l.updated_at).toLocaleDateString()} · Review game</Link></Button><p className="whitespace-pre-line text-sm leading-relaxed">{l.content}</p></article>)}
+        {!learnings.length && <p className="text-sm text-muted-foreground">No learnings yet.</p>}
+      </TabsContent>
+      <TabsContent value="overview" className="space-y-5">
       <RatingForecast results={results} />
+      <SkillsRadar games={skillGames} puzzles={puzzles} />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="Games played" value={games.length} />
         <Stat label="Blunders / game" value={avgBlunders} />
@@ -137,6 +154,8 @@ function ProgressPage() {
           <Button type="submit">Save</Button>
         </form>
       </div>
+      </TabsContent>
+      </Tabs>
     </div>
   );
 }

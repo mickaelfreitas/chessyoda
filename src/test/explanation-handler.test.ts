@@ -9,7 +9,8 @@ vi.mock("@tanstack/react-start/server", () => ({ getRequest: () => new Request("
 vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
 vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: { rpc: mocks.rpc, from: () => ({ upsert: mocks.upsert }) } }));
 import { DAILY_EXPLANATION_LIMIT } from "@/lib/explain.functions";
-const data = { fen: new Chess().fen(), played: "e4", bestLine: ["d4"], rating: 1400 };
+const board = new Chess(); const fenBefore = board.fen(); board.move("e4");
+const data = { record: { fenBefore, fenAfter: board.fen(), san: "e4", uci: "e2e4", color: "w", evalBefore: 20, evalAfter: 10, mateAfter: null, bestLine: ["d4"], replyLine: ["e5"], ply: 1, bestUci: "d2d4", byPlayer: true }, rating: 1400 };
 describe("server explanation quota", () => {
   beforeEach(() => { vi.stubEnv("ANTHROPIC_API_KEY", "test-only-not-a-credential"); vi.stubGlobal("fetch", mocks.fetch); mocks.rpc.mockReset(); mocks.fetch.mockReset(); });
   it("passes exactly 300 and the verified caller ID to the atomic quota before upstream calls", async () => {
@@ -29,7 +30,7 @@ describe("server explanation quota", () => {
     expect(JSON.stringify(response)).not.toContain("private internal details");
     expect(mocks.fetch).not.toHaveBeenCalled();
   });
-  it("uses the requested Anthropic model, 200 tokens, and parses content text", async () => {
+  it("uses the requested Anthropic model, 300 tokens, and parses content text", async () => {
     mocks.rpc.mockResolvedValue({ data: true, error: null });
     mocks.cache.mockResolvedValue({ data: null, error: null });
     mocks.upsert.mockResolvedValue({ error: null });
@@ -43,7 +44,9 @@ describe("server explanation quota", () => {
     expect(url).toBe("https://api.anthropic.com/v1/messages");
     expect(request.headers["anthropic-version"]).toBe("2023-06-01");
     expect(request.headers["x-api-key"]).toBe("test-only-not-a-credential");
-    expect(JSON.parse(request.body)).toMatchObject({ model: "claude-haiku-5-5", max_tokens: 200, thinking: { type: "disabled" } });
+    expect(JSON.parse(request.body)).toMatchObject({ model: "claude-haiku-5-5", max_tokens: 300, thinking: { type: "disabled" } });
+    expect(JSON.parse(request.body).messages[0].content).not.toContain("fenBefore");
+    expect(JSON.parse(request.body).messages[0].content).toContain("evaluationBefore");
     expect(response).toMatchObject({ text: "Control the center.", error: null, status: 200 });
   });
   it("returns upstream status without exposing provider internals", async () => {
